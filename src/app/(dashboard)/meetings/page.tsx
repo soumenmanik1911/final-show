@@ -17,6 +17,9 @@ const page = async () => {
 
     const queryClient = getQueryClient();
 
+    // Prefetch meetings data on server to prevent client-side auth issues
+    await queryClient.prefetchQuery(trpc.meetings.getMany.queryOptions({}));
+
     return (
         <div className="space-y-4 w-full">
             <div className="w-full">
