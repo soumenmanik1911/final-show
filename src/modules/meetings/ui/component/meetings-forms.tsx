@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { meetingsInsertSchema } from "../../schema"; // Changed from agentsInsertSchema to meetingsInsertSchema
+import { MAX_PAGE_SIZE } from "@/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
@@ -30,7 +31,12 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
   const queryClient = useQueryClient();
 
   // Fetch available agents for the dropdown
-  const { data: agents } = useQuery(trpc.agents.getMany.queryOptions({}));
+  // Modified to always refetch on mount and fetch all agents (up to MAX_PAGE_SIZE) to ensure new agents appear in the dropdown after creation
+  // const { data: agents } = useQuery(trpc.agents.getMany.queryOptions({}));
+  const { data: agents } = useQuery({
+    ...trpc.agents.getMany.queryOptions({ limit: MAX_PAGE_SIZE }),
+    refetchOnMount: true,
+  });
 
   const createMeeting = useMutation( // Changed from createAgent to createMeeting
     trpc.meetings.create.mutationOptions({ // Changed from trpc.agents.create to trpc.meetings.create
@@ -134,10 +140,15 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
                     <SelectValue placeholder="Select an agent" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="max-h-60 overflow-y-auto">
                   {agents?.items?.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id} className="text-lg py-3"> {/* Increased font size and padding for agent names */}
-                      {agent.name}
+                    <SelectItem key={agent.id} value={agent.id} className="flex items-center gap-3 py-3 px-4 text-base hover:bg-gray-50 cursor-pointer">
+                      <GeneratedAvatar
+                        seed={agent.name}
+                        variant="botttsNeutral"
+                        className="size-8 border border-gray-200 flex-shrink-0"
+                      />
+                      <span className="truncate font-medium text-gray-900">{agent.name}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>

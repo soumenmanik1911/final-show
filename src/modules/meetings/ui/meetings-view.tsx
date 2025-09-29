@@ -1,9 +1,10 @@
-"use client";
+ "use client";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { DataTable } from "@/components/data-table";
 import{columns} from "./component/columns"
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/loading-state";
@@ -13,6 +14,7 @@ import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 export const MeetingsView = () => {
     const trpc = useTRPC();
+    const router = useRouter();
 
     // Added: State for pagination and search functionality
     const [page, setPage] = useState(1);
@@ -74,6 +76,7 @@ export const MeetingsView = () => {
                 <DataTable
                     data={data.items}
                     columns={columns}
+                    onRowClick={(meeting) => router.push(`/meetings/${meeting.id}`)}
                 />
             </div>
 
