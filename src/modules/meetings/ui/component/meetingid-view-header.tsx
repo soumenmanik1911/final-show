@@ -20,12 +20,15 @@ interface Props {
   onRemove: () => void;
 }
 
+
 export const MeetingIdViewHeader = ({
   meetingId,
   meetingName,
   onEdit,
   onRemove,
 }: Props) => {
+
+  
   return (
     <div className="flex items-center justify-between">
         

@@ -26,6 +26,12 @@ const{data} =useSuspenseQuery(
             }
         })
     )
+    const isActive = data.status === "active";
+const isUpcoming =data.status === "upcoming";
+const isCancelled =data.status === "cancelled";
+const isCompleted =data.status === "completed";
+const isProcessing =data.status === "processing";
+
     return (<div>
         <MeetingIdViewHeader
         meetingId={meetingId}
@@ -35,6 +41,17 @@ const{data} =useSuspenseQuery(
 
         />
         
-         {JSON.stringify(data,null,2)}
-         </div>)
+        {isCancelled && <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">This meeting has been cancelled.</div>}
+        {isProcessing && <div className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-400" role="alert">This meeting is currently being processed.</div>}
+            {isUpcoming && <div className="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">This meeting is upcoming.</div>}
+            {isCompleted && <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">This meeting has been completed.</div>}
+             {isActive && <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">This meeting is currently active.</div>}
+        </div>
+    );
 }
+
+      
+
+
+     
+      
