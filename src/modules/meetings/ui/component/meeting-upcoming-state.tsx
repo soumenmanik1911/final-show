@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, VideoIcon } from "lucide-react";
+import Link from "next/link";
+
 
 /**
  * MeetingUpcomingState Component
@@ -40,9 +42,12 @@ export const MeetingUpcomingState = ({ meeting }: Props) => {
             </p>
           </div>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          Start Meeting
-        </Button>
+        <Link href={`/call/${meeting.id}`}>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            <VideoIcon className="size-4 mr-2" />
+            Start Meeting
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );
