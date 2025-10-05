@@ -3,6 +3,7 @@ import Vapi from "@vapi-ai/web";
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingData?: any;
   userId: string;
   userName: string;
   userImage: string;
@@ -27,6 +28,7 @@ import { CallUI } from "./call-ui";
 export const CallConnect = ({
   meetingId,
   meetingName,
+  meetingData,
   userId,
   userName,
   userImage,
@@ -41,6 +43,7 @@ export const CallConnect = ({
   );
   const [client, setClient] = useState<StreamVideoClient>();
   useEffect(() => {
+    console.log('Creating StreamVideoClient for user:', userId, 'isGuest:', isGuest);
     const _client = new StreamVideoClient({
       apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
       user: {
@@ -49,10 +52,21 @@ export const CallConnect = ({
         image: userImage,
       },
       token: isGuest ? guestToken : undefined,
-      tokenProvider: isGuest ? undefined : generateToken
+      tokenProvider: isGuest ? undefined : () => {
+        console.log('Generating token for user:', userId);
+        return generateToken().then(token => {
+          console.log('Token generated successfully for user:', userId);
+          return token;
+        }).catch(error => {
+          console.error('Failed to generate token for user:', userId, error);
+          throw error;
+        });
+      }
     });
+    console.log('StreamVideoClient created, setting client');
     setClient(_client);
     return () => {
+      console.log('Disconnecting StreamVideoClient for user:', userId);
       _client.disconnectUser();
       setClient(undefined);
     };
@@ -65,12 +79,20 @@ export const CallConnect = ({
  const [isAiActive, setIsAiActive] = useState(false);
 
 useEffect(() => {
-  if (!client) return;
-  if (!meetingId) return;
+  if (!client) {
+    console.log('No client available for call creation');
+    return;
+  }
+  if (!meetingId) {
+    console.log('No meetingId available for call creation');
+    return;
+  }
 
+  console.log('Creating call for meetingId:', meetingId);
   const _call = client.call("default", meetingId);
   _call.camera.disable();
   _call.microphone.disable();
+  console.log('Call created, setting call state');
   setCall(_call);
 
   // Initialize Vapi client
@@ -111,7 +133,11 @@ useEffect(() => {
       setCall(undefined);
     }
     // Clean up Vapi
-    _vapiClient?.stop();
+    try {
+      _vapiClient?.stop();
+    } catch (error) {
+      console.error('Error stopping Vapi on cleanup:', error);
+    }
     setVapiClient(undefined);
   };
 }, [client, meetingId]);
@@ -121,6 +147,14 @@ useEffect(() => {
     if (client) {
       client.disconnectUser();
       setClient(undefined);
+    }
+    if (vapiClient) {
+      try {
+        vapiClient.stop();
+      } catch (error) {
+        console.error('Error stopping Vapi on disconnect:', error);
+      }
+      setVapiClient(undefined);
     }
   };
 }, [userId, userName, userImage, generateToken]);
@@ -149,17 +183,19 @@ const startAi = async () => {
     console.log('AI assistant joined meeting as participant');
   } catch (error) {
     console.error('Failed to start Vapi:', error);
-    console.error('Error details:', JSON.stringify(error, null, 2));
-    console.error('Error keys:', Object.keys(error || {}));
   }
 };
 
 // Function to stop VAPI manually
 const stopAi = () => {
   if (vapiClient) {
-    console.log('Stopping VAPI assistant');
-    vapiClient.stop();
-    console.log('VAPI assistant stopped');
+    try {
+      console.log('Stopping VAPI assistant');
+      vapiClient.stop();
+      console.log('VAPI assistant stopped');
+    } catch (error) {
+      console.error('Failed to stop Vapi:', error);
+    }
   }
 };
 
@@ -182,13 +218,42 @@ if (!client || !call) {
   );
 }
 
+// Error state for guest token issues
+if (isGuest && !guestToken) {
+  return (
+    <section
+      className="flex min-h-screen items-center justify-center bg-red-50 p-4"
+      aria-live="polite"
+      aria-label="Connection error"
+    >
+      <div className="text-center space-y-4 max-w-md">
+        <div className="p-4 bg-red-100 rounded-full w-fit mx-auto">
+          <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
+        <p className="text-gray-600">
+          Invalid or expired guest access token. Please request a new invitation from the meeting host.
+        </p>
+        <button
+          onClick={() => window.history.back()}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+        >
+          Go Back
+        </button>
+      </div>
+    </section>
+  );
+}
+
   return (
     // Enhanced: Added semantic section wrapper for better structure
     // Enhanced: Ensured full width and height for responsive layout
     <section className="w-full h-full">
       <StreamVideo client={client}>
         <StreamCall call={call}>
-          <CallUI meetingName={meetingName} isAiActive={isAiActive} startAi={startAi} stopAi={stopAi} />
+          <CallUI meetingName={meetingName} meetingData={meetingData} isAiActive={isAiActive} startAi={startAi} stopAi={stopAi} isGuest={isGuest} />
         </StreamCall>
       </StreamVideo>
     </section>

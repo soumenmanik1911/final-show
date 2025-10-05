@@ -50,9 +50,9 @@ import { DashboardUserButton } from "./dashboard-user-button";
         href : "/meetings",
     },
     {
-        icon :StarIcon,
-        label :"upgrade",
-        href :"/upgrade",
+        icon :BotIcon,
+        label :"AI Voice Assistant",
+        href :"/vapi-test",
     }
   ];
 

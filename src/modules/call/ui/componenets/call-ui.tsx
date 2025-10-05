@@ -6,12 +6,14 @@ import { CallEnded } from "./call-ended";
 
 interface Props {
   meetingName: string;
+  meetingData?: any;
   isAiActive: boolean;
   startAi?: () => void;
   stopAi?: () => void;
+  isGuest?: boolean;
 }
 
-export const CallUI = ({ meetingName, isAiActive, startAi, stopAi }: Props) => {
+export const CallUI = ({ meetingName, meetingData, isAiActive, startAi, stopAi, isGuest }: Props) => {
   const call = useCall();
   const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
 
@@ -40,8 +42,16 @@ export const CallUI = ({ meetingName, isAiActive, startAi, stopAi }: Props) => {
     <main className="min-h-screen w-full">
       <StreamTheme className="h-full w-full">
         <div className="relative h-full w-full transition-all duration-300 ease-in-out">
-          {show === "lobby" && <CallLobby onJoin={handleJoin} />}
-          {show === "call" && <CallAcctive onLeave={handleLeave} meetingName={meetingName} isAiActive={isAiActive} startAi={startAi} stopAi={stopAi} />}
+          {show === "lobby" && (
+            <CallLobby
+              onJoin={handleJoin}
+              meetingName={meetingName}
+              meetingId={meetingData?.id || ""}
+              hostName={meetingData?.user?.name || "Host"}
+              isGuest={isGuest}
+            />
+          )}
+          {show === "call" && <CallAcctive onLeave={handleLeave} meetingName={meetingName} isAiActive={isAiActive} startAi={startAi} stopAi={stopAi} isGuest={isGuest} />}
           {show === "ended" && <CallEnded />}
         </div>
       </StreamTheme>

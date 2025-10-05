@@ -104,3 +104,17 @@ export const meetings = pgTable("meetings", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// Guests table
+export const guests = pgTable("guests", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  meetingId: text("meeting_id")
+    .notNull()
+    .references(() => meetings.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  email: text("email"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

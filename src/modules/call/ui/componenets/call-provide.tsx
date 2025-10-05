@@ -8,6 +8,7 @@ import { CallConnect } from "./call-connect";
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingData?: any; // Meeting data from query
   isGuest?: boolean;
   guestId?: string;
   guestName?: string;
@@ -17,6 +18,7 @@ interface Props {
 export const CallProvider = ({
   meetingId,
   meetingName,
+  meetingData,
   isGuest,
   guestId,
   guestName,
@@ -28,6 +30,7 @@ export const CallProvider = ({
       <CallConnect
         meetingId={meetingId}
         meetingName={meetingName}
+        meetingData={meetingData}
         userId={guestId!}
         userName={guestName!}
         userImage={generateAvatarUri({ seed: guestName!, variant: "initials" })}
@@ -51,6 +54,7 @@ export const CallProvider = ({
    <CallConnect
    meetingId={meetingId}
    meetingName={meetingName}
+   meetingData={meetingData}
    userId={data.user.id}
    userName={data.user.name}
    userImage={

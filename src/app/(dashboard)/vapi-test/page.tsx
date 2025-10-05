@@ -50,7 +50,7 @@ export default function VapiTestPage() {
 
       vapiInstance.on('error', (error) => {
         console.error('VapiTestPage: Error', error);
-        setError(`Vapi error: ${JSON.stringify(error)}`);
+        setError(`Vapi error: ${error?.message || 'Unknown error'}`);
         setIsLoading(false);
       });
 
@@ -157,7 +157,7 @@ export default function VapiTestPage() {
 
             {/* Instructions */}
             <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-800">Testing Instructions:</h4>
+              <h4 className="font-semibold text-blue-800 text-2xl"> Instructions:</h4>
               <ul className="text-sm text-blue-700 mt-2 space-y-1">
                 <li>1. Click "Start Voice Call" to begin</li>
                 <li>2. Allow microphone permissions when prompted</li>
@@ -167,15 +167,7 @@ export default function VapiTestPage() {
               </ul>
             </div>
 
-            {/* Debug Info */}
-            <details className="bg-gray-50 p-4 rounded-lg">
-              <summary className="cursor-pointer font-semibold">Debug Information</summary>
-              <div className="mt-2 text-xs space-y-1">
-                <p>API Key: {process.env.NEXT_PUBLIC_VAPI_API_KEY ? '✅ Set' : '❌ Missing'}</p>
-                <p>Assistant ID: {process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ? '✅ Set' : '❌ Missing'}</p>
-                <p>Vapi Instance: {vapi ? '✅ Created' : '❌ Not created'}</p>
-              </div>
-            </details>
+        
           </CardContent>
         </Card>
       </div>

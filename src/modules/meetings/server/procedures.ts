@@ -1,6 +1,6 @@
 import { createTRPCRouter,  protectedProcedure, baseProcedure } from "@/trpc/init";
 import { db } from "@/db";
-import { agents, meetings } from "@/db/schema";
+import { agents, meetings, guests } from "@/db/schema";
 
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
@@ -29,7 +29,7 @@ export const meetingsRouter = createTRPCRouter({
     const token = streamVideo.generateUserToken({
       user_id: ctx.auth.user.id,
       exp: expirationTime,
-      validity_in_second:issuedAt
+      iat: issuedAt
 
     })
     return token;
@@ -314,7 +314,7 @@ getMany: protectedProcedure
    }),
 
  generateGuestToken: baseProcedure
-   .input(z.object({ meetingId: z.string(), guestName: z.string().min(1) }))
+   .input(z.object({ meetingId: z.string(), guestName: z.string().min(1), guestEmail: z.string().email().optional() }))
    .mutation(async ({ input }) => {
      // Check if meeting exists
      const [existingMeeting] = await db
@@ -340,6 +340,16 @@ getMany: protectedProcedure
        }
      ]);
 
+     // Store guest in database
+     const [guest] = await db
+       .insert(guests)
+       .values({
+         meetingId: input.meetingId,
+         name: input.guestName,
+         email: input.guestEmail,
+       })
+       .returning();
+
      // Generate token
      const expirationTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour
      const issuedAt = Math.floor(Date.now() / 1000);
@@ -347,10 +357,53 @@ getMany: protectedProcedure
      const token = streamVideo.generateUserToken({
        user_id: guestId,
        exp: expirationTime,
-       validity_in_second: issuedAt
+       iat: issuedAt
      });
 
-     return { token, guestId, guestName: input.guestName };
+     return { token, guestId, guestName: input.guestName, guest };
+   }),
+
+ updateGuest: baseProcedure
+   .input(z.object({ id: z.string(), name: z.string().min(1).optional(), email: z.string().email().optional() }))
+   .mutation(async ({ input }) => {
+     const [updatedGuest] = await db
+       .update(guests)
+       .set(input)
+       .where(eq(guests.id, input.id))
+       .returning();
+
+     if (!updatedGuest) {
+       throw new TRPCError({
+         code: 'NOT_FOUND',
+         message: 'Guest not found',
+       });
+     }
+
+     return updatedGuest;
+   }),
+
+ getGuests: protectedProcedure
+   .input(z.object({ meetingId: z.string() }))
+   .query(async ({ input, ctx }) => {
+     // First check if the user owns the meeting
+     const [meeting] = await db
+       .select()
+       .from(meetings)
+       .where(and(eq(meetings.id, input.meetingId), eq(meetings.userId, ctx.auth.user.id)));
+
+     if (!meeting) {
+       throw new TRPCError({
+         code: 'NOT_FOUND',
+         message: 'Meeting not found',
+       });
+     }
+
+     const guestsList = await db
+       .select()
+       .from(guests)
+       .where(eq(guests.meetingId, input.meetingId));
+
+     return guestsList;
    }),
 
 

@@ -1,7 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Download, Play } from "lucide-react";
+import { CheckCircle, Download, Play, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 /**
  * MeetingCompletedState Component
@@ -30,6 +36,46 @@ interface Props {
 
 export const MeetingCompletedState = ({ meeting }: Props) => {
   const router = useRouter();
+  const trpc = useTRPC();
+  const [showGuestDialog, setShowGuestDialog] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState<any>(null);
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+
+  const { data: guests } = useSuspenseQuery(
+    trpc.meetings.getGuests.queryOptions({ meetingId: meeting.id })
+  );
+
+  const updateGuest = useMutation(
+    trpc.meetings.updateGuest.mutationOptions({
+      onSuccess: () => {
+        setShowGuestDialog(false);
+        setSelectedGuest(null);
+        setGuestName("");
+        setGuestEmail("");
+      },
+    })
+  );
+
+  const incompleteGuests = guests.filter((guest: any) => !guest.email);
+
+  const handleEditGuest = (guest: any) => {
+    setSelectedGuest(guest);
+    setGuestName(guest.name);
+    setGuestEmail(guest.email || "");
+    setShowGuestDialog(true);
+  };
+
+  const handleSaveGuest = () => {
+    if (selectedGuest) {
+      updateGuest.mutate({
+        id: selectedGuest.id,
+        name: guestName,
+        email: guestEmail || undefined,
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 transition-all duration-300 ease-in-out">
@@ -101,6 +147,81 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
           </CardContent>
         </Card>
       )}
+
+      {guests.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Users className="size-5 text-blue-600" />
+              <p className="font-medium text-blue-800 dark:text-blue-200">Meeting Guests</p>
+            </div>
+            <p className="text-sm text-blue-600 dark:text-blue-300 mb-3">
+              {guests.length} guest{guests.length !== 1 ? 's' : ''} participated in this meeting.
+            </p>
+            {incompleteGuests.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-yellow-600 dark:text-yellow-300">
+                  {incompleteGuests.length} guest{incompleteGuests.length !== 1 ? 's' : ''} missing email information.
+                </p>
+                <div className="space-y-2">
+                  {incompleteGuests.map((guest: any) => (
+                    <div key={guest.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                      <span className="text-sm">{guest.name}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditGuest(guest)}
+                      >
+                        Add Email
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Dialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Guest Information</DialogTitle>
+            <DialogDescription>
+              Add or update the guest's email address.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="guest-name">Name</Label>
+              <Input
+                id="guest-name"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder="Guest name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="guest-email">Email (optional)</Label>
+              <Input
+                id="guest-email"
+                type="email"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                placeholder="guest@example.com"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowGuestDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveGuest} disabled={updateGuest.isPending}>
+                {updateGuest.isPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
