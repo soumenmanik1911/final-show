@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Download, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 /**
  * MeetingCompletedState Component
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export const MeetingCompletedState = ({ meeting }: Props) => {
+  const router = useRouter();
   return (
     <div className="space-y-4">
       <Card className="border-green-200 bg-green-50 dark:bg-green-950/20 transition-all duration-300 ease-in-out">
@@ -84,18 +86,17 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3 mb-3">
               <CheckCircle className="size-5 text-purple-600" />
-              <p className="font-medium text-purple-800 dark:text-purple-200">Meeting Transcript</p>
+              <p className="font-medium text-purple-800 dark:text-purple-200">Meeting Summary</p>
             </div>
             <p className="text-sm text-purple-600 dark:text-purple-300 mb-3">
-              A transcript of your meeting is available.
+              AI-generated summary and Q&A from your meeting transcript.
             </p>
             <Button
-              onClick={() => window.open(`/api/transcript/${meeting.id}`, '_blank')}
+              onClick={() => router.push(`/summary/${meeting.id}`)}
               className="bg-purple-600 hover:bg-purple-700 text-white"
               size="sm"
             >
-              <Download className="w-4 h-4 mr-2" />
-              View Transcript
+              View Summary
             </Button>
           </CardContent>
         </Card>

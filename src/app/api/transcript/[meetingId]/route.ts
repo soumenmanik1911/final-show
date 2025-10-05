@@ -45,12 +45,21 @@ export async function GET(
     // Check if summary already exists
     if (meeting.summary) {
       console.log(`Returning existing summary for meeting ${meetingId}`);
-      return new NextResponse(meeting.summary, {
-        headers: {
-          'Content-Type': 'text/plain',
-          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
-        },
-      });
+      try {
+        const data = JSON.parse(meeting.summary);
+        return NextResponse.json(data, {
+          headers: {
+            'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+          },
+        });
+      } catch {
+        // Fallback for old text summaries
+        return NextResponse.json({ summary: meeting.summary, qa: [] }, {
+          headers: {
+            'Cache-Control': 'public, max-age=3600',
+          },
+        });
+      }
     }
 
     console.log(`Fetching transcript for meeting ${meetingId} from URL: ${meeting.transcriptUrl.substring(0, 100)}...`);
@@ -71,26 +80,64 @@ export async function GET(
 
     console.log(`Successfully fetched transcript for meeting ${meetingId}, content length: ${content.length}`);
 
-    // Generate summary using Gemini
+    // Generate summary and Q&A using Gemini
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const prompt = `Summarize the following meeting transcript in a concise manner:\n\n${content}`;
+    const prompt = `Analyze the following meeting transcript and provide:
+1. A concise summary
+2. 3-5 key questions and answers derived from the transcript
+
+Format your response as:
+Summary: [summary text]
+
+Q&A:
+Q1: [question]
+A1: [answer]
+Q2: [question]
+A2: [answer]
+...
+
+Transcript: ${content}`;
 
     try {
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
       });
-      const summary = response.text;
+      const rawText = response.text;
 
-      // Store the summary in the database
-      await db.update(meetings).set({ summary }).where(eq(meetings.id, meetingId));
+      if (!rawText) {
+        throw new Error('No response from Gemini');
+      }
 
-      console.log(`Generated and stored summary for meeting ${meetingId}`);
+      // Parse the response
+      const parts = rawText.split('\n\nQ&A:');
+      const summary = parts[0].replace('Summary:', '').trim();
 
-      // Return the summary
-      return new NextResponse(summary, {
+      const qaSection = parts[1] || '';
+      const qaLines = qaSection.split('\n').filter(line => line.trim());
+      const qa = [];
+      for (let i = 0; i < qaLines.length; i += 2) {
+        const qLine = qaLines[i];
+        const aLine = qaLines[i + 1];
+        if (qLine?.startsWith('Q') && aLine?.startsWith('A')) {
+          const question = qLine.replace(/^Q\d+:\s*/, '').trim();
+          const answer = aLine.replace(/^A\d+:\s*/, '').trim();
+          if (question && answer) {
+            qa.push({ question, answer });
+          }
+        }
+      }
+
+      const data = { summary, qa };
+
+      // Store the data in the database as JSON
+      await db.update(meetings).set({ summary: JSON.stringify(data) }).where(eq(meetings.id, meetingId));
+
+      console.log(`Generated and stored summary with Q&A for meeting ${meetingId}`);
+
+      // Return the data
+      return NextResponse.json(data, {
         headers: {
-          'Content-Type': 'text/plain',
           'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
         },
       });
