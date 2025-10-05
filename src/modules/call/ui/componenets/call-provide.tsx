@@ -8,9 +8,35 @@ import { CallConnect } from "./call-connect";
 interface Props {
   meetingId: string;
   meetingName: string;
+  isGuest?: boolean;
+  guestId?: string;
+  guestName?: string;
+  guestToken?: string;
 };
 
-export const CallProvider = ({ meetingId, meetingName }: Props) => {
+export const CallProvider = ({
+  meetingId,
+  meetingName,
+  isGuest,
+  guestId,
+  guestName,
+  guestToken
+}: Props) => {
+  if (isGuest) {
+    // For guests, use provided guest info
+    return (
+      <CallConnect
+        meetingId={meetingId}
+        meetingName={meetingName}
+        userId={guestId!}
+        userName={guestName!}
+        userImage={generateAvatarUri({ seed: guestName!, variant: "initials" })}
+        isGuest={true}
+        guestToken={guestToken}
+      />
+    );
+  }
+
   const { data, isPending } = authClient.useSession();
 
   if (!data || isPending) {
@@ -23,15 +49,15 @@ export const CallProvider = ({ meetingId, meetingName }: Props) => {
 
   return (
    <CallConnect
-  meetingId={meetingId}
-  meetingName={meetingName}
-  userId={data.user.id}
-  userName={data.user.name}
-  userImage={
-    data.user.image ??
-    generateAvatarUri({ seed: data.user.name, variant: "initials" })
-  }
-/>
+   meetingId={meetingId}
+   meetingName={meetingName}
+   userId={data.user.id}
+   userName={data.user.name}
+   userImage={
+     data.user.image ??
+     generateAvatarUri({ seed: data.user.name, variant: "initials" })
+   }
+ />
 
   );
 };

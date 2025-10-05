@@ -1,4 +1,4 @@
-import { createTRPCRouter,  protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter,  protectedProcedure, baseProcedure } from "@/trpc/init";
 import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 
@@ -288,6 +288,70 @@ getMany: protectedProcedure
 
       return { items: data, total: totalRow?.count ?? 0, totalPages };
     }),
+
+ getMeetingPublic: baseProcedure
+   .input(z.object({ id: z.string() }))
+   .query(async ({ input }) => {
+     const [existingMeeting] = await db
+       .select({
+         id: meetings.id,
+         name: meetings.name,
+         status: meetings.status,
+         agent: agents,
+       })
+       .from(meetings)
+       .innerJoin(agents, eq(meetings.agentId, agents.id))
+       .where(eq(meetings.id, input.id));
+
+     if (!existingMeeting) {
+       throw new TRPCError({
+         code: 'NOT_FOUND',
+         message: 'Meeting not found',
+       });
+     }
+
+     return existingMeeting;
+   }),
+
+ generateGuestToken: baseProcedure
+   .input(z.object({ meetingId: z.string(), guestName: z.string().min(1) }))
+   .mutation(async ({ input }) => {
+     // Check if meeting exists
+     const [existingMeeting] = await db
+       .select()
+       .from(meetings)
+       .where(eq(meetings.id, input.meetingId));
+
+     if (!existingMeeting) {
+       throw new TRPCError({
+         code: 'NOT_FOUND',
+         message: 'Meeting not found',
+       });
+     }
+
+     // Create guest user in Stream Video
+     const guestId = `guest_${input.meetingId}_${Date.now()}`;
+     await streamVideo.upsertUsers([
+       {
+         id: guestId,
+         name: input.guestName,
+         role: "user",
+         image: generateAvatarUri({ seed: guestId, variant: "initials" })
+       }
+     ]);
+
+     // Generate token
+     const expirationTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+     const issuedAt = Math.floor(Date.now() / 1000);
+
+     const token = streamVideo.generateUserToken({
+       user_id: guestId,
+       exp: expirationTime,
+       validity_in_second: issuedAt
+     });
+
+     return { token, guestId, guestName: input.guestName };
+   }),
 
 
 });

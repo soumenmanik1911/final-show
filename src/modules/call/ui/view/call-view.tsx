@@ -6,13 +6,23 @@ import { CallProvider } from "../componenets/call-provide";
 
 interface Props {
   meetingId: string;
+  isGuest?: boolean;
+  guestToken?: string;
+  guestId?: string;
+  guestName?: string;
 }
 
 export const CallView = ({
-  meetingId
+  meetingId,
+  isGuest,
+  guestToken,
+  guestId,
+  guestName
 }: Props) => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.meetings.getOne.queryOptions({ id: meetingId }));
+  const { data } = isGuest
+    ? useSuspenseQuery(trpc.meetings.getMeetingPublic.queryOptions({ id: meetingId }))
+    : useSuspenseQuery(trpc.meetings.getOne.queryOptions({ id: meetingId }));
   if (data.status =="completed"){
     return (
           //a button for returnnig meeting page
@@ -28,6 +38,13 @@ export const CallView = ({
 
 
   return(
-  <CallProvider meetingId={meetingId}  meetingName={data.name}/>
+  <CallProvider
+    meetingId={meetingId}
+    meetingName={data.name}
+    isGuest={isGuest}
+    guestId={guestId}
+    guestName={guestName}
+    guestToken={guestToken}
+  />
   )
 }

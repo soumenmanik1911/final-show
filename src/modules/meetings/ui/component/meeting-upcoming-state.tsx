@@ -1,7 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, VideoIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, VideoIcon, Copy, Check } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 
 /**
@@ -30,25 +32,66 @@ interface Props {
 }
 
 export const MeetingUpcomingState = ({ meeting }: Props) => {
+  const [copied, setCopied] = useState(false);
+  const joinUrl = `${window.location.origin}/join/${meeting.id}`;
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
   return (
-    <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 transition-all duration-300 ease-in-out">
-      <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">
-        <div className="flex items-center gap-3 flex-1">
-          <Calendar className="size-6 text-blue-600" />
-          <div>
-            <p className="font-medium text-blue-800 dark:text-blue-200">Upcoming Meeting</p>
-            <p className="text-sm text-blue-600 dark:text-blue-300">
-              This meeting is scheduled for the future. You can start it when ready.
-            </p>
+    <div className="space-y-4">
+      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 transition-all duration-300 ease-in-out">
+        <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">
+          <div className="flex items-center gap-3 flex-1">
+            <Calendar className="size-6 text-blue-600" />
+            <div>
+              <p className="font-medium text-blue-800 dark:text-blue-200">Upcoming Meeting</p>
+              <p className="text-sm text-blue-600 dark:text-blue-300">
+                This meeting is scheduled for the future. You can start it when ready.
+              </p>
+            </div>
           </div>
-        </div>
-        <Link href={`/call/${meeting.id}`}>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            <VideoIcon className="size-4 mr-2" />
-            Start Meeting
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
+          <Link href={`/call/${meeting.id}`}>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <VideoIcon className="size-4 mr-2" />
+              Start Meeting
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <VideoIcon className="size-5 text-green-600" />
+            <p className="font-medium text-green-800 dark:text-green-200">Share Meeting Link</p>
+          </div>
+          <p className="text-sm text-green-600 dark:text-green-300 mb-3">
+            Anyone with this link can join your meeting. Share it with participants.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={joinUrl}
+              readOnly
+              className="flex-1 bg-white"
+            />
+            <Button
+              onClick={copyToClipboard}
+              variant="outline"
+              className="px-3"
+            >
+              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

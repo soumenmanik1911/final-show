@@ -9,25 +9,55 @@ interface Props {
   params: Promise<{
     meetingId: string;
   }>;
+  searchParams: Promise<{
+    guestToken?: string;
+    guestId?: string;
+    guestName?: string;
+  }>;
 }
 
-export const Page = async ({ params }: Props) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/sign-in");
-  }
+export const Page = async ({ params, searchParams }: Props) => {
   const { meetingId } = await params;
+  const { guestToken, guestId, guestName } = await searchParams;
+
+  // Check if this is a guest join
+  const isGuest = !!(guestToken && guestId && guestName);
+
+  let session = null;
+  if (!isGuest) {
+    session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      redirect("/sign-in");
+    }
+  }
+
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.meetings.getOne.queryOptions({id: meetingId})
-  )
-  return(
-    <HydrationBoundary state={dehydrate(queryClient)}> 
-    <CallView meetingId={meetingId}/>
+
+  if (isGuest) {
+    // For guests, prefetch public meeting info
+    void queryClient.prefetchQuery(
+      trpc.meetings.getMeetingPublic.queryOptions({ id: meetingId })
+    );
+  } else {
+    // For authenticated users, prefetch full meeting info
+    void queryClient.prefetchQuery(
+      trpc.meetings.getOne.queryOptions({ id: meetingId })
+    );
+  }
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CallView
+        meetingId={meetingId}
+        isGuest={isGuest}
+        guestToken={guestToken}
+        guestId={guestId}
+        guestName={guestName}
+      />
     </HydrationBoundary>
-  )
+  );
 };
 export default Page;

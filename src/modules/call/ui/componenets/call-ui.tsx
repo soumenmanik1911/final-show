@@ -17,6 +17,12 @@ export const CallUI = ({ meetingName, isAiActive, startAi, stopAi }: Props) => {
 
   const handleJoin = async () => {
     if (!call) return;
+    // Fix: Check if already joined to prevent "Illegal State: call.join() shall be called only once" error
+    // This prevents multiple join calls that can occur due to re-renders or component remounting
+    if (call.state.callingState === 'joined') {
+      setShow("call");
+      return;
+    }
     await call.join();
     setShow("call");
   };

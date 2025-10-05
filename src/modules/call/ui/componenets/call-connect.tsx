@@ -6,6 +6,8 @@ interface Props {
   userId: string;
   userName: string;
   userImage: string;
+  isGuest?: boolean;
+  guestToken?: string;
 };
 import { LoaderIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -27,31 +29,34 @@ export const CallConnect = ({
   meetingName,
   userId,
   userName,
-  userImage
+  userImage,
+  isGuest,
+  guestToken
 }: Props) => {
   console.log('CallConnect component rendered for meeting:', meetingId);
 
-    const trpc = useTRPC();
-const { mutateAsync: generateToken } = useMutation(
-  trpc.meetings.genarateToken.mutationOptions(),
-);
-const [client, setClient] = useState<StreamVideoClient>();
-useEffect(() => {
-  const _client = new StreamVideoClient({
-    apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-    user: {
-      id: userId,
-      name: userName,
-      image: userImage,
-    },
-    tokenProvider: generateToken
-  });
-  setClient(_client);
-  return () => {
-    _client.disconnectUser();
-    setClient(undefined);
-  };
-}, [userId, userName, userImage, generateToken]);
+  const trpc = useTRPC();
+  const { mutateAsync: generateToken } = useMutation(
+    trpc.meetings.genarateToken.mutationOptions(),
+  );
+  const [client, setClient] = useState<StreamVideoClient>();
+  useEffect(() => {
+    const _client = new StreamVideoClient({
+      apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
+      user: {
+        id: userId,
+        name: userName,
+        image: userImage,
+      },
+      token: isGuest ? guestToken : undefined,
+      tokenProvider: isGuest ? undefined : generateToken
+    });
+    setClient(_client);
+    return () => {
+      _client.disconnectUser();
+      setClient(undefined);
+    };
+  }, [userId, userName, userImage, isGuest, guestToken, generateToken]);
 
  // useState and useEffect for client and call
  // const [client, setClient] = useState<StreamVideoClient>();
