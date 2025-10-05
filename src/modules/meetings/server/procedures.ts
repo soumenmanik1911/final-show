@@ -62,28 +62,44 @@ export const meetingsRouter = createTRPCRouter({
 
 
    update: protectedProcedure
-    .input(meetingsUpdateSchema)
-    .mutation(async ({ input, ctx }) => {
-      const [updatedMeeting] = await db
-      .update(meetings)
-      .set(input)
-        .where(
-            and(
-              eq(meetings.id, input.id),
-              eq(meetings.userId, ctx.auth.user.id)
-            ),
-          )
-              .returning();
-  
-          if(!updatedMeeting){
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: 'Meeting not found',
-            })
-          }
-          return updatedMeeting;
-  
-        }),
+     .input(meetingsUpdateSchema)
+     .mutation(async ({ input, ctx }) => {
+       // If cancelling the meeting, end the Stream call and mark as completed
+       if (input.status === 'cancelled') {
+         try {
+           const call = streamVideo.video.call("default", input.id);
+           await call.end();
+           console.log('Stream call ended for cancelled meeting:', input.id);
+
+           // Set status to completed and add end time since we're ending the call
+           input.status = 'completed';
+           input.endTime = new Date();
+         } catch (error) {
+           console.error('Failed to end Stream call for cancelled meeting:', error);
+           // Continue with database update even if Stream call end fails
+         }
+       }
+
+       const [updatedMeeting] = await db
+       .update(meetings)
+       .set(input)
+         .where(
+             and(
+               eq(meetings.id, input.id),
+               eq(meetings.userId, ctx.auth.user.id)
+             ),
+           )
+               .returning();
+
+           if(!updatedMeeting){
+             throw new TRPCError({
+               code: 'NOT_FOUND',
+               message: 'Meeting not found',
+             })
+           }
+           return updatedMeeting;
+
+         }),
   create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
@@ -116,6 +132,14 @@ export const meetingsRouter = createTRPCRouter({
             }
           }
         });
+
+        // Start recording immediately when meeting is created
+        try {
+          await call.startRecording();
+          console.log('Recording started for meeting:', createdMeeting.id);
+        } catch (error) {
+          console.error('Failed to start recording for new meeting:', error);
+        }
         const [existingAgent] = await db
         .select()
         .from(agents).where(eq(agents.id, createdMeeting.agentId));

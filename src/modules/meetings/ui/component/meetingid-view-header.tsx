@@ -3,7 +3,8 @@ import {
   ChevronRightIcon,
   TrashIcon,
   PencilIcon,
-  MoreVerticalIcon
+  MoreVerticalIcon,
+  XIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ interface Props {
   status: string;
   onEdit: () => void;
   onRemove: () => void;
+  onCancel?: () => void;
 }
 
 
@@ -29,6 +31,7 @@ export const MeetingIdViewHeader = ({
   status,
   onEdit,
   onRemove,
+  onCancel,
 }: Props) => {
 
   const getStatusBadge = (status: string) => {
@@ -76,6 +79,12 @@ export const MeetingIdViewHeader = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {status === 'active' && onCancel && (
+            <DropdownMenuItem onClick={onCancel}>
+              <XIcon className="size-4" />
+              <span className="ml-2">Cancel Meeting</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={onEdit}>
             <PencilIcon className="size-4" />
             <span className="ml-2">Edit</span>

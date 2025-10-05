@@ -21,6 +21,8 @@ import {
   ClockFadingIcon,
   CornerDownRightIcon,
   LoaderIcon,
+  Download,
+  Play,
 } from "lucide-react"
 import { MeetingGetMany } from "../../types"
 
@@ -127,6 +129,55 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
         </span>
       </Badge>
     ),
+  },
+  {
+    accessorKey: "recording",
+    header: "Recording",
+    cell: ({ row }) => {
+      const hasRecording = row.original.recordingUrl;
+      const isCompleted = row.original.status === 'completed';
+      // Transcript functionality commented out for now
+      // const hasTranscript = row.original.transcriptUrl;
+
+      return (
+        <div className="flex items-center gap-1">
+          {hasRecording && (
+            <div
+              className="flex items-center gap-1 text-green-600 cursor-pointer hover:text-green-800"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (row.original.recordingUrl) {
+                  window.open(row.original.recordingUrl, '_blank');
+                }
+              }}
+              title="Download Recording"
+            >
+              <Download className="w-4 h-4" />
+            </div>
+          )}
+          {/* Transcript functionality commented out for now
+          {hasTranscript && (
+            <div
+              className="flex items-center gap-1 text-blue-600 cursor-pointer hover:text-blue-800"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(row.original.transcriptUrl, '_blank');
+              }}
+              title="View Transcript"
+            >
+              <Play className="w-4 h-4" />
+            </div>
+          )}
+          */}
+          {!hasRecording && isCompleted && (
+            <span className="text-yellow-500 text-sm" title="Recording processing">⏳</span>
+          )}
+          {!hasRecording && !isCompleted && (
+            <span className="text-gray-400 text-sm">-</span>
+          )}
+        </div>
+      );
+    },
   }
 
 

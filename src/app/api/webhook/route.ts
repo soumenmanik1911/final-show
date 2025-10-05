@@ -1,0 +1,235 @@
+import { and, eq, not } from "drizzle-orm";
+import {
+  CallSessionParticipantLeftEvent,
+  CallRecordingReadyEvent,
+  CallSessionStartedEvent
+} from "@stream-io/node-sdk";
+
+import { db } from "@/db";
+import { agents, meetings } from "@/db/schema";
+import { streamVideo } from "@/lib/stream-video";
+import { NextRequest, NextResponse } from "next/server";
+
+
+function verifySignatureWithSDK(body: string, signature: string): boolean{
+      return streamVideo.verifyWebhook(body, signature);
+
+};
+export async function POST(req: NextRequest) {
+  const signature = req.headers.get("x-signature");
+  const apiKey = req.headers.get("x-api-key");
+
+  if (!signature || !apiKey) {
+    return NextResponse.json(
+      {
+        error: "Missing signature or API key",
+        status: 400
+      }
+    );
+  }
+
+
+const body = await req.text();
+
+if (!verifySignatureWithSDK(body, signature)) {
+  return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+}
+
+let payload: unknown;
+try {
+  payload = JSON.parse(body) as Record<string, unknown>;
+} catch {
+  return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+}
+
+const eventType = (payload as Record<string, unknown>)?.type;
+
+if (eventType === "call.session_started") {
+  const event = payload as CallSessionStartedEvent;
+  const meetingId = event.call.custom?.meetingId;
+
+  if (!meetingId) {
+    return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
+  }
+
+
+const [existingMeeting] = await db
+  .select()
+  .from(meetings)
+  .where(
+    and(
+      eq(meetings.id, meetingId),
+      not(eq(meetings.status, "completed")),
+      not(eq(meetings.status, "active")),
+      not(eq(meetings.status, "cancelled")),
+      not(eq(meetings.status, "processing"))
+    )
+  );
+  if (!existingMeeting) {
+    return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+  }
+  await db
+  .update(meetings)
+  .set({
+    status: "active",
+    startTime: new Date(),
+  })
+  .where(eq(meetings.id, existingMeeting.id));
+
+const [existingAgent] = await db
+  .select()
+  .from(agents)
+  .where(eq(agents.id, existingMeeting.agentId));
+
+
+  if(!existingAgent) {
+    return NextResponse.json({ error: "Agent not found" }, { status: 404 });
+  }
+
+  const call = streamVideo.video.call("default", meetingId);
+
+  // Recording is now started when meeting is created, not in webhook
+
+  // Recording is now started when meeting is created, not in webhook
+  // Note: For proper web integration with Stream, we'll use Vapi's web SDK
+  // in the client-side meeting component instead of server-side API calls
+  // This allows the AI to join as a web participant
+  console.log('Meeting started with agent:', existingAgent.id, '- Vapi integration ready for client-side');
+
+
+
+}
+else if (eventType === "call.session_participant_left") {
+  const event = payload as CallSessionParticipantLeftEvent;
+  const callCid = event.call_cid;
+  console.log('Received call.session_participant_left event for call:', callCid);
+
+  // Extract meeting ID from call_cid (format: "call_type:call_id")
+  const callId = callCid?.split(":")[1];
+  if (!callId) {
+    console.log('Could not extract call ID from call_cid:', callCid);
+    return NextResponse.json({ error: "Invalid call_cid format" }, { status: 400 });
+  }
+
+  console.log('Extracted call ID:', callId);
+
+  // Find meeting by ID (call ID should match meeting ID)
+  const [meeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, callId));
+
+  if (!meeting) {
+    console.log('No meeting found for call ID:', callId);
+    return NextResponse.json({ error: "Meeting not found for call" }, { status: 404 });
+  }
+
+  console.log('Found meeting:', meeting.id, 'current status:', meeting.status);
+
+  // Only update if meeting is still active
+  if (meeting.status === 'active') {
+    await db
+      .update(meetings)
+      .set({
+        status: "completed",
+        endTime: new Date(),
+      })
+      .where(eq(meetings.id, meeting.id));
+
+    console.log('Updated meeting status to completed:', meeting.id);
+  } else {
+    console.log('Meeting already has status:', meeting.status, '- not updating');
+  }
+
+  // Note: Don't call call.end() here as it might cause issues
+  // The call is already ending due to participant leaving
+}
+else if (eventType === "call.recording_ready") {
+  console.log('🔴 RECEIVED call.recording_ready event - FULL PAYLOAD:', JSON.stringify(payload, null, 2));
+
+  const event = payload as any; // Using any due to uncertain event structure
+  const callId = event.call_cid?.split(":")[1]; // Extract meeting ID from call_cid
+
+  if (!callId) {
+    console.log('❌ No call ID in recording event - full event:', event);
+    return NextResponse.json({ error: "Missing call ID in recording event" }, { status: 400 });
+  }
+
+  console.log('📞 Extracted call ID from recording event:', callId);
+
+  // Find the meeting by call ID (assuming call ID matches meeting ID)
+  let [meeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, callId));
+
+  // If not found, try to find any recent meeting that might match (fallback for ID mismatches)
+  if (!meeting) {
+    console.log('❌ Meeting not found for call ID:', callId, '- trying fallback search...');
+
+    // Look for meetings that ended recently and might be waiting for recording
+    const recentMeetings = await db
+      .select()
+      .from(meetings)
+      .where(eq(meetings.status, 'completed'))
+      .orderBy(meetings.endTime)
+      .limit(5);
+
+    console.log('Recent completed meetings:', recentMeetings.map(m => ({ id: m.id, endTime: m.endTime })));
+
+    // If there's only one recent meeting, assume it's the one
+    if (recentMeetings.length === 1) {
+      meeting = recentMeetings[0];
+      console.log('✅ Using fallback meeting:', meeting.id);
+    } else {
+      console.log('❌ Multiple or no recent meetings found, cannot determine which meeting this recording belongs to');
+      return NextResponse.json({ error: "Cannot match recording to meeting" }, { status: 400 });
+    }
+  }
+
+  console.log('✅ Found meeting for recording:', meeting.id, 'current status:', meeting.status);
+
+  // Update the meeting with the recording URL
+  // Try different possible property paths for the recording URL
+  const recordingUrl = event.call_recording?.url || event.recording?.url || event.url || event.recording_url || event.recording?.mp4_url;
+
+  console.log('🔍 Recording URL extraction attempt:');
+  console.log('  - event.call_recording?.url:', event.call_recording?.url);
+  console.log('  - event.recording?.url:', event.recording?.url);
+  console.log('  - event.url:', event.url);
+  console.log('  - event.recording_url:', event.recording_url);
+  console.log('  - event.recording?.mp4_url:', event.recording?.mp4_url);
+  console.log('  - Final URL:', recordingUrl);
+
+  if (!recordingUrl || recordingUrl === '.' || recordingUrl.trim() === '') {
+    console.log('❌ Invalid recording URL - URL is empty, dot, or whitespace. Full event:', JSON.stringify(event, null, 2));
+    return NextResponse.json({ error: "Invalid recording URL in event" }, { status: 400 });
+  }
+
+  console.log('✅ Valid recording URL found, updating database...');
+
+  await db
+    .update(meetings)
+    .set({
+      recordingUrl: recordingUrl,
+      status: "completed",
+      endTime: new Date(),
+    })
+    .where(eq(meetings.id, meeting.id));
+
+  console.log('🎉 Successfully updated meeting with recording - ID:', meeting.id, 'URL:', recordingUrl);
+
+  // Verify the update
+  const [updatedMeeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, meeting.id));
+
+  console.log('🔍 Verification - Updated meeting status:', updatedMeeting?.status, 'recordingUrl:', updatedMeeting?.recordingUrl);
+}
+
+
+return NextResponse.json({ status: "ok" });
+
+
+}

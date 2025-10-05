@@ -31,11 +31,24 @@ const{data} =useSuspenseQuery(
             }
         })
     )
+
+    const cancelMeeting = useMutation(
+        trpc.meetings.update.mutationOptions({
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['meetings', 'getOne', meetingId] });
+                queryClient.invalidateQueries({ queryKey: ['meetings', 'getMany'] });
+            }
+        })
+    )
     const isActive = data.status === "active";
 const isUpcoming =data.status === "upcoming";
 const isCancelled =data.status === "cancelled";
 const isCompleted =data.status === "completed";
 const isProcessing =data.status === "processing";
+
+    // Special case: Show completed state if recording is available, even if status is not completed
+    const hasRecording = data.recordingUrl;
+    const shouldShowCompleted = isCompleted || (hasRecording && !isActive && !isUpcoming && !isCancelled);
 
     /**
      * MeetingIdView Component
@@ -66,14 +79,15 @@ const isProcessing =data.status === "processing";
           status={data.status}
           onEdit={() => {}}
           onRemove={() => removeMeeting.mutate({ id: meetingId })}
+          onCancel={() => cancelMeeting.mutate({ id: meetingId, status: "cancelled" })}
         />
 
         {/* Conditional rendering of state-specific components for better modularity */}
         {isCancelled && <MeetingCancelledState meeting={data} />}
-        {isProcessing && <MeetingProcessingState meeting={data} />}
+        {isProcessing && !shouldShowCompleted && <MeetingProcessingState meeting={data} />}
         {isUpcoming && <MeetingUpcomingState meeting={data} />}
-        {isCompleted && <MeetingCompletedState meeting={data} />}
-        {isActive && <MeetingActiveState meeting={data} />}
+        {(isCompleted || shouldShowCompleted) && <MeetingCompletedState meeting={data} />}
+        {isActive && !shouldShowCompleted && <MeetingActiveState meeting={data} />}
       </div>
     );
 }
