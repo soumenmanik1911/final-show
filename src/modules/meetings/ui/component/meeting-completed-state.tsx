@@ -79,7 +79,6 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
         </Card>
       )}
 
-      {/* Transcript functionality commented out for now
       {meeting.transcriptUrl && (
         <Card className="border-purple-200 bg-purple-50 dark:bg-purple-950/20">
           <CardContent className="p-4">
@@ -91,7 +90,7 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
               A transcript of your meeting is available.
             </p>
             <Button
-              onClick={() => window.open(meeting.transcriptUrl, '_blank')}
+              onClick={() => window.open(`/api/transcript/${meeting.id}`, '_blank')}
               className="bg-purple-600 hover:bg-purple-700 text-white"
               size="sm"
             >
@@ -101,7 +100,6 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
           </CardContent>
         </Card>
       )}
-      */}
     </div>
   );
 };

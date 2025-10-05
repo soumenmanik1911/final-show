@@ -136,8 +136,7 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
     cell: ({ row }) => {
       const hasRecording = row.original.recordingUrl;
       const isCompleted = row.original.status === 'completed';
-      // Transcript functionality commented out for now
-      // const hasTranscript = row.original.transcriptUrl;
+      const hasTranscript = row.original.transcriptUrl;
 
       return (
         <div className="flex items-center gap-1">
@@ -155,20 +154,18 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
               <Download className="w-4 h-4" />
             </div>
           )}
-          {/* Transcript functionality commented out for now
           {hasTranscript && (
             <div
               className="flex items-center gap-1 text-blue-600 cursor-pointer hover:text-blue-800"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(row.original.transcriptUrl, '_blank');
+                window.open(`/api/transcript/${row.original.id}`, '_blank');
               }}
               title="View Transcript"
             >
               <Play className="w-4 h-4" />
             </div>
           )}
-          */}
           {!hasRecording && isCompleted && (
             <span className="text-yellow-500 text-sm" title="Recording processing">⏳</span>
           )}

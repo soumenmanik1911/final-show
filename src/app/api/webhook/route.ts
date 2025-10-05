@@ -2,7 +2,8 @@ import { and, eq, not } from "drizzle-orm";
 import {
   CallSessionParticipantLeftEvent,
   CallRecordingReadyEvent,
-  CallSessionStartedEvent
+  CallSessionStartedEvent,
+  CallTranscriptionReadyEvent // Added for transcription URL support - handles transcription ready webhooks
 } from "@stream-io/node-sdk";
 
 import { db } from "@/db";
@@ -226,6 +227,94 @@ else if (eventType === "call.recording_ready") {
     .where(eq(meetings.id, meeting.id));
 
   console.log('🔍 Verification - Updated meeting status:', updatedMeeting?.status, 'recordingUrl:', updatedMeeting?.recordingUrl);
+}
+// Added transcription URL support - handles call.transcription_ready webhooks to store transcription URLs
+// This ensures meetings can retrieve transcribed text via the stored URL
+else if (eventType === "call.transcription_ready") {
+  console.log('🔴 RECEIVED call.transcription_ready event - FULL PAYLOAD:', JSON.stringify(payload, null, 2));
+
+  const event = payload as any; // Using any due to uncertain event structure
+  const callId = event.call_cid?.split(":")[1]; // Extract meeting ID from call_cid
+
+  if (!callId) {
+    console.log('❌ No call ID in transcription event - full event:', event);
+    return NextResponse.json({ error: "Missing call ID in transcription event" }, { status: 400 });
+  }
+
+  console.log('📞 Extracted call ID from transcription event:', callId);
+
+  // Find the meeting by call ID (assuming call ID matches meeting ID)
+  let [meeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, callId));
+
+  // If not found, try to find any recent meeting that might match (fallback for ID mismatches)
+  if (!meeting) {
+    console.log('❌ Meeting not found for call ID:', callId, '- trying fallback search...');
+
+    // Look for meetings that ended recently and might be waiting for transcription
+    const recentMeetings = await db
+      .select()
+      .from(meetings)
+      .where(eq(meetings.status, 'completed'))
+      .orderBy(meetings.endTime)
+      .limit(5);
+
+    console.log('Recent completed meetings:', recentMeetings.map(m => ({ id: m.id, endTime: m.endTime })));
+
+    // If there's only one recent meeting, assume it's the one
+    if (recentMeetings.length === 1) {
+      meeting = recentMeetings[0];
+      console.log('✅ Using fallback meeting:', meeting.id);
+    } else {
+      console.log('❌ Multiple or no recent meetings found, cannot determine which meeting this transcription belongs to');
+      return NextResponse.json({ error: "Cannot match transcription to meeting" }, { status: 400 });
+    }
+  }
+
+  console.log('✅ Found meeting for transcription:', meeting.id, 'current status:', meeting.status);
+
+  // Update the meeting with the transcription URL
+  // Try different possible property paths for the transcription URL (similar to recording)
+  const transcriptionUrl = event.call_transcription?.url || event.transcription?.url || event.url || event.transcription_url;
+
+  console.log('🔍 Transcription URL extraction attempt:');
+  console.log('  - event.call_transcription?.url:', event.call_transcription?.url);
+  console.log('  - event.transcription?.url:', event.transcription?.url);
+  console.log('  - event.url:', event.url);
+  console.log('  - event.transcription_url:', event.transcription_url);
+  console.log('  - Final URL:', transcriptionUrl);
+
+  if (!transcriptionUrl || transcriptionUrl === '.' || transcriptionUrl.trim() === '') {
+    console.log('❌ Invalid transcription URL - URL is empty, dot, or whitespace. Full event:', JSON.stringify(event, null, 2));
+    return NextResponse.json({ error: "Invalid transcription URL in event" }, { status: 400 });
+  }
+
+  console.log('✅ Valid transcription URL found, updating database...');
+
+  // Log additional details about the transcription URL for debugging
+  console.log('📄 Transcription URL details:');
+  console.log('  - URL starts with:', transcriptionUrl.substring(0, 50) + '...');
+  console.log('  - URL length:', transcriptionUrl.length);
+  console.log('  - Is HTTPS:', transcriptionUrl.startsWith('https://'));
+
+  await db
+    .update(meetings)
+    .set({
+      transcriptUrl: transcriptionUrl,
+    })
+    .where(eq(meetings.id, meeting.id));
+
+  console.log('🎉 Successfully updated meeting with transcription - ID:', meeting.id, 'URL:', transcriptionUrl);
+
+  // Verify the update
+  const [updatedMeeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, meeting.id));
+
+  console.log('🔍 Verification - Updated meeting transcriptUrl:', updatedMeeting?.transcriptUrl);
 }
 
 
