@@ -45,7 +45,8 @@ export const JoinMeetingView = ({ meetingId }: Props) => {
       generateToken.mutate({
         meetingId,
         guestName: guestName.trim(),
-        guestEmail: guestEmail.trim() || undefined
+        // Changed to empty string instead of undefined to match string type
+        guestEmail: guestEmail.trim() || ""
       });
     }
   };

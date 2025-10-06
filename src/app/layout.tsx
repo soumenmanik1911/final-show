@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// Commented out to fix build error due to Google Fonts fetch failure
+// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {TRPCReactProvider} from "@/trpc/client"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Commented out font definitions to prevent fetching issues
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "meet-me",
@@ -27,7 +29,8 @@ export default function RootLayout({
     <TRPCReactProvider>
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        // Commented out font variables to fix build error
+        className={`antialiased min-h-screen flex flex-col`}
       >
         <main className="flex-1">
           {children}
