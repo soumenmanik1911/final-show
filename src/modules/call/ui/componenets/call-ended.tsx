@@ -114,6 +114,7 @@ export const CallEnded = ({ meetingData, isGuest }: Props) => {
                     <CheckCircleIcon className="w-3 h-3 mr-2" />
                     Access Meeting Summary
                   </Button>
+                  <div className="text-red-700 font-bold">Don't close the tab. If you close the tab, the summary recording details will be gone.</div>
                 </div>
               )}
             </div>

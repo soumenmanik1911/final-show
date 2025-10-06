@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, pgEnum, integer } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const user = pgTable("user", {
@@ -115,6 +115,20 @@ export const guests = pgTable("guests", {
     .references(() => meetings.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   email: text("email").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Feedback table
+export const feedback = pgTable("feedback", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  userId: text("user_id")
+    .references(() => user.id, { onDelete: "set null" }),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  bugReport: text("bug_report"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

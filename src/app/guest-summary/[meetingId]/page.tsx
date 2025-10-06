@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Download, FileText, Play } from 'lucide-react';
 import { MeetMeLogo } from '@/components/logo';
 import Link from 'next/link';
+import { GuestHowToUse } from '@/components/guest-how-to-use';
 
 interface PageProps {
   params: Promise<{ meetingId: string }>;
@@ -219,6 +220,9 @@ export default function GuestSummaryPage({ params }: PageProps) {
             </CardContent>
           </Card>
         )}
+
+        {/* How to Use Guide for Guests */}
+        <GuestHowToUse />
       </div>
     </div>
   );

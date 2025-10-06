@@ -55,9 +55,14 @@ import { DashboardUserButton } from "./dashboard-user-button";
         href :"/vapi-test",
     },
     {
-       icon :FileJson2,
+        icon :FileJson2,
         label :"how to use",
         href :"/how-to-use",
+    },
+    {
+        icon :StarIcon,
+        label :"My Feedback",
+        href :"/my-feedback",
     }
   ];
 

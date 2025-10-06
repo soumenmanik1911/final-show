@@ -22,6 +22,13 @@
       "when": 1759729271363,
       "tag": "0002_magical_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759775981926,
+      "tag": "0003_famous_vindicator",
+      "breakpoints": true
     }
   ]
 }

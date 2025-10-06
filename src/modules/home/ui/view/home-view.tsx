@@ -27,6 +27,41 @@ export const HomeView = () => {
       </div>
 
       <div className="relative z-10">
+        {/* Header Buttons Section */}
+        <div className="w-full max-w-7xl mx-auto px-4 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            {/* Feedback Button */}
+            <div className="flex flex-col items-center gap-2">
+              <Link href="/my-feedback">
+                <button className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 hover:scale-105 backdrop-blur-sm border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Feedback
+                  </div>
+                </button>
+              </Link>
+              <p className="text-sm text-cyan-300 font-medium text-center">Your feedback matters to us</p>
+            </div>
+
+            {/* How to Use Button */}
+            <div className="flex flex-col items-center gap-2">
+              <Link href="/how-to-use">
+                <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-purple-500/25 hover:scale-105 backdrop-blur-sm border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    How to Use
+                  </div>
+                </button>
+              </Link>
+               <p className="text-sm text-cyan-300 font-medium text-center">Easy to use</p>
+            </div>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="flex flex-col items-center justify-center min-h-screen px-4 py-16">
           <div className="text-center max-w-6xl mx-auto">
