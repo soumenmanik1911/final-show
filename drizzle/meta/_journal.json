@@ -15,6 +15,13 @@
       "when": 1759675221393,
       "tag": "0001_lumpy_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759729271363,
+      "tag": "0002_magical_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

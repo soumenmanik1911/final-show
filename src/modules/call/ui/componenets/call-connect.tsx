@@ -35,7 +35,7 @@ export const CallConnect = ({
   isGuest,
   guestToken
 }: Props) => {
-  console.log('CallConnect component rendered for meeting:', meetingId);
+  // console.log('CallConnect component rendered for meeting:', meetingId);
 
   const trpc = useTRPC();
   const { mutateAsync: generateToken } = useMutation(
@@ -43,7 +43,7 @@ export const CallConnect = ({
   );
   const [client, setClient] = useState<StreamVideoClient>();
   useEffect(() => {
-    console.log('Creating StreamVideoClient for user:', userId, 'isGuest:', isGuest);
+    // console.log('Creating StreamVideoClient for user:', userId, 'isGuest:', isGuest);
     const _client = new StreamVideoClient({
       apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
       user: {
@@ -53,9 +53,9 @@ export const CallConnect = ({
       },
       token: isGuest ? guestToken : undefined,
       tokenProvider: isGuest ? undefined : () => {
-        console.log('Generating token for user:', userId);
+        // console.log('Generating token for user:', userId);
         return generateToken().then(token => {
-          console.log('Token generated successfully for user:', userId);
+          // console.log('Token generated successfully for user:', userId);
           return token;
         }).catch(error => {
           console.error('Failed to generate token for user:', userId, error);
@@ -63,10 +63,10 @@ export const CallConnect = ({
         });
       }
     });
-    console.log('StreamVideoClient created, setting client');
+    // console.log('StreamVideoClient created, setting client');
     setClient(_client);
     return () => {
-      console.log('Disconnecting StreamVideoClient for user:', userId);
+      // console.log('Disconnecting StreamVideoClient for user:', userId);
       _client.disconnectUser();
       setClient(undefined);
     };
@@ -80,24 +80,24 @@ export const CallConnect = ({
 
 useEffect(() => {
   if (!client) {
-    console.log('No client available for call creation');
+    // console.log('No client available for call creation');
     return;
   }
   if (!meetingId) {
-    console.log('No meetingId available for call creation');
+    // console.log('No meetingId available for call creation');
     return;
   }
 
-  console.log('Creating call for meetingId:', meetingId);
+  // console.log('Creating call for meetingId:', meetingId);
   const _call = client.call("default", meetingId);
   _call.camera.disable();
   _call.microphone.disable();
-  console.log('Call created, setting call state');
+  // console.log('Call created, setting call state');
   setCall(_call);
 
   // Initialize Vapi client
-  console.log('Initializing VapiClient with key:', process.env.NEXT_PUBLIC_VAPI_API_KEY ? 'Present' : 'Missing');
-  console.log('Assistant ID:', process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ? 'Present' : 'Missing');
+  // console.log('Initializing VapiClient with key:', process.env.NEXT_PUBLIC_VAPI_API_KEY ? 'Present' : 'Missing');
+  // console.log('Assistant ID:', process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ? 'Present' : 'Missing');
 
   if (!process.env.NEXT_PUBLIC_VAPI_API_KEY || !process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID) {
     console.error('Vapi environment variables missing!');
@@ -105,23 +105,23 @@ useEffect(() => {
   }
 
   const _vapiClient = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY);
-  console.log('VapiClient instance created successfully');
+  // console.log('VapiClient instance created successfully');
 
   // Add event listeners for debugging
   _vapiClient.on('call-start', () => {
-    console.log('Vapi: Call started');
+    // console.log('Vapi: Call started');
     setIsAiActive(true);
   });
   _vapiClient.on('call-end', () => {
-    console.log('Vapi: Call ended');
+    // console.log('Vapi: Call ended');
     setIsAiActive(false);
     // Re-enable Stream microphone
     if (call) {
       call.microphone.enable();
-      console.log('Stream microphone re-enabled after VAPI ended');
+      // console.log('Stream microphone re-enabled after VAPI ended');
     }
   });
-  _vapiClient.on('message', (message: any) => console.log('Vapi message:', message));
+  _vapiClient.on('message', (message: any) => {/* console.log('Vapi message:', message) */});
   _vapiClient.on('error', (error: any) => console.error('Vapi error:', error));
 
   setVapiClient(_vapiClient);
@@ -167,20 +167,20 @@ const startAi = async () => {
   }
 
   try {
-    console.log('Starting Vapi assistant for meeting:', meetingId);
-    console.log('Using assistant ID:', process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
+    // console.log('Starting Vapi assistant for meeting:', meetingId);
+    // console.log('Using assistant ID:', process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
     await vapiClient.start(process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID!);
-    console.log('Vapi assistant started successfully - joining as participant');
+    // console.log('Vapi assistant started successfully - joining as participant');
 
     // Disable Stream microphone to allow VAPI to handle audio input
     if (call) {
       call.microphone.disable();
-      console.log('Stream microphone disabled for VAPI audio');
+      // console.log('Stream microphone disabled for VAPI audio');
     }
 
     // Add AI as a virtual participant with avatar
     // Note: This is a conceptual addition - actual implementation may vary
-    console.log('AI assistant joined meeting as participant');
+    // console.log('AI assistant joined meeting as participant');
   } catch (error) {
     console.error('Failed to start Vapi:', error);
   }
@@ -190,9 +190,9 @@ const startAi = async () => {
 const stopAi = () => {
   if (vapiClient) {
     try {
-      console.log('Stopping VAPI assistant');
+      // console.log('Stopping VAPI assistant');
       vapiClient.stop();
-      console.log('VAPI assistant stopped');
+      // console.log('VAPI assistant stopped');
     } catch (error) {
       console.error('Failed to stop Vapi:', error);
     }

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmailConfirmation } from "@/components/email-confirmation";
 
 /**
  * MeetingCompletedState Component
@@ -58,6 +59,7 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
   );
 
   const incompleteGuests = guests.filter((guest: any) => !guest.email);
+  const guestsWithEmails = guests.filter((guest: any) => guest.email);
 
   const handleEditGuest = (guest: any) => {
     setSelectedGuest(guest);
@@ -148,6 +150,15 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
         </Card>
       )}
 
+      {/* Email Confirmation Component */}
+      <EmailConfirmation
+        meetingId={meeting.id}
+        meetingName={meeting.name}
+        hasRecording={!!meeting.recordingUrl}
+        hasTranscript={!!meeting.transcriptUrl}
+        guestCount={guestsWithEmails.length}
+      />
+
       {guests.length > 0 && (
         <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
           <CardContent className="p-4">
@@ -157,6 +168,11 @@ export const MeetingCompletedState = ({ meeting }: Props) => {
             </div>
             <p className="text-sm text-blue-600 dark:text-blue-300 mb-3">
               {guests.length} guest{guests.length !== 1 ? 's' : ''} participated in this meeting.
+              {guestsWithEmails.length > 0 && (
+                <span className="block text-green-600 dark:text-green-400">
+                  {guestsWithEmails.length} with email addresses
+                </span>
+              )}
             </p>
             {incompleteGuests.length > 0 && (
               <div className="space-y-2">

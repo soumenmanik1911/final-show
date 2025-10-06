@@ -31,7 +31,15 @@ export const CallUI = ({ meetingName, meetingData, isAiActive, startAi, stopAi, 
 
   const handleLeave = () => {
     if (!call) return;
-    call.endCall();
+
+    // For guests, use leave() to exit without ending the call for others
+    // For hosts, use endCall() to end the meeting for everyone
+    if (isGuest) {
+      call.leave();
+    } else {
+      call.endCall();
+    }
+
     setShow("ended");
   };
 
@@ -52,7 +60,7 @@ export const CallUI = ({ meetingName, meetingData, isAiActive, startAi, stopAi, 
             />
           )}
           {show === "call" && <CallAcctive onLeave={handleLeave} meetingName={meetingName} isAiActive={isAiActive} startAi={startAi} stopAi={stopAi} isGuest={isGuest} />}
-          {show === "ended" && <CallEnded />}
+          {show === "ended" && <CallEnded meetingData={meetingData} isGuest={isGuest} />}
         </div>
       </StreamTheme>
     </main>

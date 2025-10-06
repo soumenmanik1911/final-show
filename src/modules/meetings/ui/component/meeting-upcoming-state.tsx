@@ -92,6 +92,30 @@ export const MeetingUpcomingState = ({ meeting }: Props) => {
           </div>
         </CardContent>
       </Card>
+
+      {meeting.guests && meeting.guests.length > 0 && (
+        <Card className="border-purple-200 bg-purple-50 dark:bg-purple-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="size-5 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                {meeting.guests.length}
+              </div>
+              <p className="font-medium text-purple-800 dark:text-purple-200">Invited Guests</p>
+            </div>
+            <p className="text-sm text-purple-600 dark:text-purple-300 mb-3">
+              These guests will receive email notifications when the meeting ends.
+            </p>
+            <div className="space-y-2">
+              {meeting.guests.map((guest: any) => (
+                <div key={guest.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                  <span className="text-sm font-medium">{guest.name}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{guest.email}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

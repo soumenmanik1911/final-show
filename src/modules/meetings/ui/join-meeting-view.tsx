@@ -67,9 +67,12 @@ export const JoinMeetingView = ({ meetingId }: Props) => {
             </CardTitle>
             <CardDescription className="text-gray-600">
               This meeting has already been completed. The link has expired.
-             
-              <Button variant="outline" className="mt-4">Go to Homepage
-              <Link href="/sign-up"> </Link>  </Button>
+
+              <Link href="/sign-up">
+                <Button variant="outline" className="mt-4">
+                  Go to Homepage
+                </Button>
+              </Link>
             </CardDescription>
           </CardHeader>
         </Card>

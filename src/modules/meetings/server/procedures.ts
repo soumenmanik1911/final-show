@@ -4,9 +4,9 @@ import { agents, meetings, guests } from "@/db/schema";
 
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
-import { and, eq, ilike, count, getTableColumns } from "drizzle-orm";
+import { and, eq, ilike, count, getTableColumns, not, isNotNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { meetingsInsertSchema, meetingsUpdateSchema } from "../schema";
+import { meetingsInsertSchema, meetingsUpdateSchema, guestInsertSchema, guestUpdateSchema } from "../schema";
 import { sql } from "drizzle-orm";
 import { streamVideo } from "@/lib/stream-video";
 import { id } from "zod/v4/locales";
@@ -103,13 +103,27 @@ export const meetingsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
+      const { guests: guestList, ...meetingData } = input;
       const [createdMeeting] = await db
         .insert(meetings)
         .values({
-          ...input,
+          ...meetingData,
           userId: ctx.auth.user.id,
         })
         .returning();
+
+      // Insert guests if provided
+      if (guestList && guestList.length > 0) {
+        await db
+          .insert(guests)
+          .values(
+            guestList.map(guestData => ({
+              meetingId: createdMeeting.id,
+              name: guestData.name,
+              email: guestData.email,
+            }))
+          );
+      }
         
         const call =streamVideo.video.call("default", createdMeeting.id, );
         await call.create({
@@ -177,13 +191,31 @@ getOne: protectedProcedure
 
         })
        .from(meetings)
-       .innerJoin(agents, eq(meetings.agentId, agents.id))
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
       .where(
         and(
           eq(meetings.id, input.id),
           eq(meetings.userId, ctx.auth.user.id)
         )
       );
+
+      if (!existingmeetings) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Meeting not found',
+        });
+      }
+
+      // Get guests for this meeting
+      const guestsList = await db
+        .select()
+        .from(guests)
+        .where(eq(guests.meetingId, input.id));
+
+      return {
+        ...existingmeetings,
+        guests: guestsList,
+      };
 
     if (!existingmeetings) {
       throw new TRPCError({
@@ -314,7 +346,7 @@ getMany: protectedProcedure
    }),
 
  generateGuestToken: baseProcedure
-   .input(z.object({ meetingId: z.string(), guestName: z.string().min(1), guestEmail: z.string().email().optional() }))
+   .input(z.object({ meetingId: z.string(), guestName: z.string().min(1), guestEmail: z.string().email() }))
    .mutation(async ({ input }) => {
      // Check if meeting exists
      const [existingMeeting] = await db
@@ -364,7 +396,7 @@ getMany: protectedProcedure
    }),
 
  updateGuest: baseProcedure
-   .input(z.object({ id: z.string(), name: z.string().min(1).optional(), email: z.string().email().optional() }))
+   .input(guestUpdateSchema)
    .mutation(async ({ input }) => {
      const [updatedGuest] = await db
        .update(guests)
@@ -404,6 +436,77 @@ getMany: protectedProcedure
        .where(eq(guests.meetingId, input.meetingId));
 
      return guestsList;
+   }),
+
+ sendMeetingEmails: protectedProcedure
+   .input(z.object({ meetingId: z.string() }))
+   .mutation(async ({ input, ctx }) => {
+     // First check if the user owns the meeting
+     const [meeting] = await db
+       .select()
+       .from(meetings)
+       .where(and(eq(meetings.id, input.meetingId), eq(meetings.userId, ctx.auth.user.id)));
+
+     if (!meeting) {
+       throw new TRPCError({
+         code: 'NOT_FOUND',
+         message: 'Meeting not found',
+       });
+     }
+
+     // Get guests with emails
+     const guestsWithEmails = await db
+       .select()
+       .from(guests)
+       .where(and(eq(guests.meetingId, input.meetingId), isNotNull(guests.email)));
+
+     if (guestsWithEmails.length === 0) {
+       return {
+         success: false,
+         message: 'No guests with email addresses found',
+         sentCount: 0,
+         totalGuests: 0
+       };
+     }
+
+     // Get host name and meeting summary
+     const [host] = await db
+       .select({ name: agents.name })
+       .from(agents)
+       .where(eq(agents.userId, meeting.userId))
+       .limit(1);
+
+     // Import sendMeetingLinksEmail function
+     const { sendMeetingLinksEmail } = await import('@/lib/email');
+
+     // Send emails to all guests
+     const emailPromises = guestsWithEmails.map(async (guest) => {
+       try {
+         const result = await sendMeetingLinksEmail(guest.email!, {
+           guestName: guest.name,
+           meetingName: meeting.name,
+           summaryText: meeting.summary || undefined,
+           recordingUrl: meeting.recordingUrl || undefined,
+           hostName: host?.name,
+         });
+         return { success: result.success, guestId: guest.id, guestName: guest.name };
+       } catch (error) {
+         console.error(`Failed to send email to ${guest.email}:`, error);
+         return { success: false, guestId: guest.id, guestName: guest.name, error: error instanceof Error ? error.message : 'Unknown error' };
+       }
+     });
+
+     const results = await Promise.allSettled(emailPromises);
+     const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+     const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)).length;
+
+     return {
+       success: successful > 0,
+       message: `Emails sent: ${successful} successful, ${failed} failed`,
+       sentCount: successful,
+       totalGuests: guestsWithEmails.length,
+       results: results.map(r => r.status === 'fulfilled' ? r.value : { success: false, error: r.reason })
+     };
    }),
 
 

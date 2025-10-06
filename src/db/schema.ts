@@ -114,7 +114,7 @@ export const guests = pgTable("guests", {
     .notNull()
     .references(() => meetings.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  email: text("email"),
+  email: text("email").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

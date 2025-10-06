@@ -93,7 +93,7 @@ export default function VapiTestPage() {
       <div className="max-w-4xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Vapi Voice AI Test</CardTitle>
+            <CardTitle>Ask your query here</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Status */}

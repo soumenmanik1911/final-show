@@ -3,16 +3,16 @@ import { MeetingGetOne } from "../..//types"; // Changed from AgentGetOne to Mee
 import { useRouter } from "next/navigation";
 import {useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { meetingsInsertSchema } from "../../schema"; // Changed from agentsInsertSchema to meetingsInsertSchema
+import { meetingsInsertSchema, guestInsertSchema } from "../../schema"; // Changed from agentsInsertSchema to meetingsInsertSchema
 import { MAX_PAGE_SIZE } from "@/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GeneratedAvatar } from "@/components/genrated-avatar"; // Kept as is, assuming it's reusable or not needed for meetings
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, X } from "lucide-react"; // Added icons for better button design
+import { Loader2, Check, X, Plus, Trash2 } from "lucide-react"; // Added icons for better button design
 
 
 interface MeetingFormProps { // Changed from AgentFormProps to MeetingFormProps
@@ -78,7 +78,13 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
     defaultValues: {
       name: initialValues?.name ?? "", // Changed to use name for meeting title
       agentId: initialValues?.agentId ?? "",
+      guests: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "guests",
   });
 
   const isEdit = !!initialValues?.id;
@@ -172,6 +178,71 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
             </div>
           </div>
         )}
+
+        {/* Guests Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel className="text-lg font-semibold text-gray-700">Guests (Optional)</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => append({ name: "", email: "" })}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Guest
+            </Button>
+          </div>
+
+          {fields.length === 0 && (
+            <p className="text-sm text-gray-500">No guests added yet. Guests will receive email notifications when the meeting ends.</p>
+          )}
+
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex gap-3 items-end p-4 border rounded-lg bg-gray-50">
+              <div className="flex-1">
+                <FormField
+                  name={`guests.${index}.name`}
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Guest name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex-1">
+                <FormField
+                  name={`guests.${index}.email`}
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="email" placeholder="guest@example.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => remove(index)}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
 
         {/* Form Buttons - Enhanced with icons and better styling */}
         <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
