@@ -104,148 +104,150 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
 
   return (
     <Form {...form}>
-      <form className="space-y-6 p-6 bg-white rounded-lg shadow-md" onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Meeting Avatar Section - Enhanced with better styling */}
-        <div className="flex justify-center">
-          <GeneratedAvatar
-            seed={form.watch("name")} // Changed to use "name" for meeting title
-            variant="botttsNeutral"
-            className="border-2 border-gray-200 size-20 shadow-lg" // Increased size and added shadow for better visibility
-          />
-        </div>
-
-        {/* Title Field - Enhanced with better spacing */}
-        <FormField
-          name="name" // Changed to use "name" for meeting title field
-          control={form.control}
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel className="text-lg font-semibold text-gray-700">Title</FormLabel> 
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter meeting title"
-                  className="h-12 text-lg" // Increased height and font size for better UX
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Agent Selection Field - Enhanced with selected agent display */}
-        <FormField
-          name="agentId"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel className="text-lg font-semibold text-gray-700">Agent</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select an agent" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="max-h-60 overflow-y-auto">
-                  {agents?.items?.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id} className="flex items-center gap-3 py-3 px-4 text-base hover:bg-gray-50 cursor-pointer">
-                      <GeneratedAvatar
-                        seed={agent.name}
-                        variant="botttsNeutral"
-                        className="size-8 border border-gray-200 flex-shrink-0"
-                      />
-                      <span className="truncate font-medium text-gray-900">{agent.name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Selected Agent Display - Added for better visibility when agent is selected */}
-        {selectedAgent && (
-          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border">
+      <form className="flex flex-col bg-white rounded-lg shadow-md" onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="max-h-[60vh] overflow-y-auto p-6 space-y-6">
+          {/* Meeting Avatar Section - Enhanced with better styling */}
+          <div className="flex justify-center">
             <GeneratedAvatar
-              seed={selectedAgent.name}
+              seed={form.watch("name")} // Changed to use "name" for meeting title
               variant="botttsNeutral"
-              className="border-2 border-gray-300 size-16"
+              className="border-2 border-gray-200 size-20 shadow-lg" // Increased size and added shadow for better visibility
             />
-            <div>
-              <p className="text-xl font-bold text-gray-800">{selectedAgent.name}</p> {/* Increased font size for agent name visibility */}
-              <p className="text-sm text-gray-600">Selected Agent</p>
+          </div>
+
+          {/* Title Field - Enhanced with better spacing */}
+          <FormField
+            name="name" // Changed to use "name" for meeting title field
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-lg font-semibold text-gray-700">Title</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter meeting title"
+                    className="h-12 text-lg" // Increased height and font size for better UX
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Agent Selection Field - Enhanced with selected agent display */}
+          <FormField
+            name="agentId"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-lg font-semibold text-gray-700">Agent</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Select an agent" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="max-h-60 overflow-y-auto">
+                    {agents?.items?.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id} className="flex items-center gap-3 py-3 px-4 text-base hover:bg-gray-50 cursor-pointer">
+                        <GeneratedAvatar
+                          seed={agent.name}
+                          variant="botttsNeutral"
+                          className="size-8 border border-gray-200 flex-shrink-0"
+                        />
+                        <span className="truncate font-medium text-gray-900">{agent.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Selected Agent Display - Added for better visibility when agent is selected */}
+          {selectedAgent && (
+            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border">
+              <GeneratedAvatar
+                seed={selectedAgent.name}
+                variant="botttsNeutral"
+                className="border-2 border-gray-300 size-16"
+              />
+              <div>
+                <p className="text-xl font-bold text-gray-800">{selectedAgent.name}</p> {/* Increased font size for agent name visibility */}
+                <p className="text-sm text-gray-600">Selected Agent</p>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Guests Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <FormLabel className="text-lg font-semibold text-gray-700">Guests (Optional)</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ name: "", email: "" })}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Guest
-            </Button>
-          </div>
-
-          {fields.length === 0 && (
-            <p className="text-sm text-gray-500">No guests added yet. Guests will receive email notifications when the meeting ends.</p>
           )}
 
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-3 items-end p-4 border rounded-lg bg-gray-50">
-              <div className="flex-1">
-                <FormField
-                  name={`guests.${index}.name`}
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Guest name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <FormField
-                  name={`guests.${index}.email`}
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" placeholder="guest@example.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          {/* Guests Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-lg font-semibold text-gray-700">Guests (Optional)</FormLabel>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => remove(index)}
-                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                onClick={() => append({ name: "", email: "" })}
+                className="flex items-center gap-2"
               >
-                <Trash2 className="w-4 h-4" />
+                <Plus className="w-4 h-4" />
+                Add Guest
               </Button>
             </div>
-          ))}
+
+            {fields.length === 0 && (
+              <p className="text-sm text-gray-500">No guests added yet. Guests will receive email notifications when the meeting ends.</p>
+            )}
+
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex gap-3 items-end p-4 border rounded-lg bg-gray-50">
+                <div className="flex-1 min-w-0">
+                  <FormField
+                    name={`guests.${index}.name`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Guest name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <FormField
+                    name={`guests.${index}.email`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="email" placeholder="guest@example.com" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => remove(index)}
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700 flex-shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Form Buttons - Enhanced with icons and better styling */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+        <div className="flex flex-col sm:flex-row gap-3 p-6 border-t bg-gray-50">
           {onCancel && (
             <Button
               variant="outline"
@@ -268,7 +270,7 @@ export const MeetingForm = ({ // Changed from AgentForm to MeetingForm
             ) : (
               <Check className="w-5 h-5" /> // Added check icon for success state
             )}
-            {isEdit ? "Update Meeting" : "Create Meeting"} 
+            {isEdit ? "Update Meeting" : "Create Meeting"}
           </Button>
         </div>
       </form>

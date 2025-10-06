@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import Link from "next/link";
-import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
+import { BotIcon, StarIcon, VideoIcon,FileJson2 } from "lucide-react";
 import { MeetMeLogo } from "@/components/logo";
 import { DashboardUserButton } from "./dashboard-user-button";
 
@@ -53,6 +53,11 @@ import { DashboardUserButton } from "./dashboard-user-button";
         icon :BotIcon,
         label :"AI Voice Assistant",
         href :"/vapi-test",
+    },
+    {
+       icon :FileJson2,
+        label :"how to use",
+        href :"/how-to-use",
     }
   ];
 
