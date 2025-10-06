@@ -49,11 +49,11 @@ export default function HowToUsePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
               <div>
                 <p className="text-lg text-gray-300 mb-4">
-                  Agents are AI assistants that can join your meetings and provide intelligent insights. Here's how to create one quickly:
+                  Agents are AI assistants that can join your meetings and provide intelligent insights. Here&apos;s how to create one quickly:
                 </p>
                 <ol className="list-decimal list-inside space-y-2 text-gray-300">
-                  <li>Navigate to the "Agents" section in your dashboard</li>
-                  <li>Click the "New Agent" button</li>
+                  <li>Navigate to the &quot;Agents&quot; section in your dashboard</li>
+                  <li>Click the &quot;New Agent&quot; button</li>
                   <li>Fill in the agent name and description</li>
                   <li>Configure any specific settings if needed</li>
                   <li>Save to create your AI assistant</li>
@@ -88,7 +88,7 @@ export default function HowToUsePage() {
                 </p>
                 <ol className="list-decimal list-inside space-y-3 text-gray-300">
                   <li><strong>Access Meetings:</strong> Go to the Meetings tab</li>
-                  <li><strong>Initiate Creation:</strong> Click "New Meeting" button</li>
+                  <li><strong>Initiate Creation:</strong> Click &quot;New Meeting&quot; button</li>
                   <li><strong>Meeting Details:</strong> Enter title, select agent, add guests</li>
                   <li><strong>Configure:</strong> Set date/time and any additional settings</li>
                   <li><strong>Generate Link:</strong> Create meeting and get shareable join link</li>
@@ -119,7 +119,7 @@ export default function HowToUsePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
               <div>
                 <p className="text-lg text-gray-300 mb-4">
-                  Whether you're the host or a guest, joining meetings is simple:
+                  Whether you&apos;re the host or a guest, joining meetings is simple:
                 </p>
                 <div className="space-y-4">
                   <div>
@@ -135,7 +135,7 @@ export default function HowToUsePage() {
                     <ul className="list-disc list-inside space-y-1 text-gray-300">
                       <li>Click the shared meeting link</li>
                       <li>Enter your name on the join page</li>
-                      <li>Click "Join Meeting" to enter</li>
+                      <li>Click &quot;Join Meeting&quot; to enter</li>
                     </ul>
                   </div>
                 </div>

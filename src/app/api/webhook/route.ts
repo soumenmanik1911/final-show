@@ -157,8 +157,8 @@ else if (eventType === "call.session_participant_left") {
 else if (eventType === "call.recording_ready") {
   // console.log('🔴 RECEIVED call.recording_ready event - FULL PAYLOAD:', JSON.stringify(payload, null, 2));
 
-  const event = payload as any; // Using any due to uncertain event structure
-  const callId = event.call_cid?.split(":")[1]; // Extract meeting ID from call_cid
+  const event = payload;
+  const callId = ((event as Record<string, unknown>).call_cid as string)?.split(":")[1]; // Extract meeting ID from call_cid
 
   if (!callId) {
     // console.log('❌ No call ID in recording event - full event:', event);
@@ -201,7 +201,7 @@ else if (eventType === "call.recording_ready") {
 
   // Update the meeting with the recording URL
   // Try different possible property paths for the recording URL
-  const recordingUrl = event.call_recording?.url || event.recording?.url || event.url || event.recording_url || event.recording?.mp4_url;
+  const recordingUrl = ((event as Record<string, unknown>).call_recording as { url?: string })?.url || ((event as Record<string, unknown>).recording as { url?: string })?.url || ((event as Record<string, unknown>).url as string) || ((event as Record<string, unknown>).recording_url as string) || ((event as Record<string, unknown>).recording as { mp4_url?: string })?.mp4_url;
 
   // console.log('🔍 Recording URL extraction attempt:');
   // console.log('  - event.call_recording?.url:', event.call_recording?.url);
@@ -247,8 +247,8 @@ else if (eventType === "call.recording_ready") {
 else if (eventType === "call.transcription_ready") {
   // console.log('🔴 RECEIVED call.transcription_ready event - FULL PAYLOAD:', JSON.stringify(payload, null, 2));
 
-  const event = payload as any; // Using any due to uncertain event structure
-  const callId = event.call_cid?.split(":")[1]; // Extract meeting ID from call_cid
+  const event = payload;
+  const callId = ((event as Record<string, unknown>).call_cid as string)?.split(":")[1]; // Extract meeting ID from call_cid
 
   if (!callId) {
     // console.log('❌ No call ID in transcription event - full event:', event);
@@ -291,7 +291,7 @@ else if (eventType === "call.transcription_ready") {
 
   // Update the meeting with the transcription URL
   // Try different possible property paths for the transcription URL (similar to recording)
-  const transcriptionUrl = event.call_transcription?.url || event.transcription?.url || event.url || event.transcription_url;
+  const transcriptionUrl = ((event as Record<string, unknown>).call_transcription as { url?: string })?.url || ((event as Record<string, unknown>).transcription as { url?: string })?.url || ((event as Record<string, unknown>).url as string) || ((event as Record<string, unknown>).transcription_url as string);
 
   // console.log('🔍 Transcription URL extraction attempt:');
   // console.log('  - event.call_transcription?.url:', event.call_transcription?.url);

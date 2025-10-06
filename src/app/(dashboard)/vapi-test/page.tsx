@@ -159,11 +159,11 @@ export default function VapiTestPage() {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-800 text-2xl"> Instructions:</h4>
               <ul className="text-sm text-blue-700 mt-2 space-y-1">
-                <li>1. Click "Start Voice Call" to begin</li>
+                <li>1. Click &quot;Start Voice Call&quot; to begin</li>
                 <li>2. Allow microphone permissions when prompted</li>
                 <li>3. Speak to the AI assistant</li>
                 <li>4. Check the transcript above for responses</li>
-                <li>5. Click "End Call" to stop</li>
+                <li>5. Click &quot;End Call&quot; to stop</li>
               </ul>
             </div>
 
