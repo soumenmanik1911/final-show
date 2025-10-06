@@ -6,7 +6,7 @@
     "dev": "next dev ",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
+    
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "hook": "ngrok http --url=kendal-postmedieval-sylvia.ngrok-free.dev 3000"
