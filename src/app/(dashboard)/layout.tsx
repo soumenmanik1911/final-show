@@ -11,7 +11,7 @@ interface Props{
 export default function Layout({ children }: Props) {
     return (
         <NuqsAdapter>
-        <SidebarProvider>
+        <SidebarProvider> 
             <Sidebar>
                 <DashboardSidebar />
             </Sidebar>

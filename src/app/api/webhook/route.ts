@@ -12,7 +12,7 @@ import { streamVideo } from "@/lib/stream-video";
 import { sendMeetingLinksEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 
-
+ 
 function verifySignatureWithSDK(body: string, signature: string): boolean{
       return streamVideo.verifyWebhook(body, signature);
 

@@ -1,24 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meet-Me
 
-## Getting Started
+Meet-Me is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates with VAPI AI for conversational AI agents and Stream Video for real-time video conferencing.
 
-First, run the development server:
+## Features
 
+- **AI Agent Management**: Create and manage custom AI agents
+- **Video Meetings**: Host meetings with integrated AI assistants
+- **Real-time Collaboration**: High-quality video calls with Stream Video
+- **Meeting Summaries**: Automatic transcripts and summaries
+- **Guest Management**: Invite guests without accounts
+- **Feedback System**: User feedback and bug reporting
+
+## Documentation
+
+- **[User Documentation](docs/README.md)**: Setup, API reference, usage guides, and troubleshooting
+- **[Project Report](docs/PROJECT_REPORT.md)**: Technical analysis, architecture review, and development roadmap
+
+## Quick Start
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables in `.env.local`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run database migrations:
+```bash
+npm run db:push
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Learn More
 

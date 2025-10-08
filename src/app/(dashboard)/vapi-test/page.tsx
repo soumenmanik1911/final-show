@@ -35,7 +35,7 @@ export default function VapiTestPage() {
       vapiInstance.on('call-end', () => {
         console.log('VapiTestPage: Call ended');
         setIsConnected(false);
-        setIsLoading(false);
+        setIsLoading(false); 
       });
 
       vapiInstance.on('message', (message) => {
