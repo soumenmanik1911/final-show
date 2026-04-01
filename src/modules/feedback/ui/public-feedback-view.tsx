@@ -26,7 +26,7 @@ export const PublicFeedbackView = () => {
           <MessageSquare className="w-12 h-12 text-purple-400" />
         </div>
         <h3 className="text-2xl font-bold text-white mb-3">Community Voices Await</h3>
-        <p className="text-gray-400 mb-8 max-w-md mx-auto">No feedback has been shared yet. Be the first to start the conversation and help shape MeetMe's future!</p>
+        <p className="text-gray-400 mb-8 max-w-md mx-auto">No feedback has been shared yet. Be the first to start the conversation and help shape Visora's future!</p>
       </div>
     );
   }

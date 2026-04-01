@@ -20,7 +20,7 @@ export const GuestHowToUse: React.FC<GuestHowToUseProps> = ({ className }) => {
         </AlertDescription>
       </Alert>
 
-      {/* How to Use MeetMe - Simplified for Guests */}
+      {/* How to Use Visora - Simplified for Guests */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/50">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
@@ -28,7 +28,7 @@ export const GuestHowToUse: React.FC<GuestHowToUseProps> = ({ className }) => {
               <Users className="w-5 h-5 text-primary" />
             </div>
             <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              How to Use MeetMe
+              How to Use Visora
             </span>
           </CardTitle>
         </CardHeader>

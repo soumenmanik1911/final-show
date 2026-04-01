@@ -26,7 +26,7 @@ export const MyFeedbackView = () => {
           <MessageSquare className="w-12 h-12 text-cyan-400" />
         </div>
         <h3 className="text-2xl font-bold text-white mb-3">Share Your Thoughts</h3>
-        <p className="text-gray-400 mb-8 max-w-md mx-auto">Your feedback helps us improve MeetMe. Be the first to share your experience!</p>
+        <p className="text-gray-400 mb-8 max-w-md mx-auto">Your feedback helps us improve Visora. Be the first to share your experience!</p>
         <Button
           onClick={() => window.open('/feedback', '_blank')}
           className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/25"

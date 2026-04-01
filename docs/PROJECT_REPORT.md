@@ -1,8 +1,8 @@
-# Meet-Me Project Report
+# Visora Project Report
 
 ## Executive Summary
 
-Meet-Me is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates VAPI AI for conversational AI agents and Stream Video for real-time video conferencing, providing a comprehensive solution for intelligent meeting management.
+Visora is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates VAPI AI for conversational AI agents and Stream Video for real-time video conferencing, providing a comprehensive solution for intelligent meeting management.
 
 The application demonstrates solid architectural foundations with modern web technologies, though there are opportunities for code quality improvements and additional features.
 
@@ -395,7 +395,7 @@ graph TB
 
 ## Conclusion
 
-Meet-Me demonstrates strong architectural foundations and innovative use of AI in video conferencing. The codebase shows good understanding of modern web development practices, with particular strength in type safety and API design.
+Visora demonstrates strong architectural foundations and innovative use of AI in video conferencing. The codebase shows good understanding of modern web development practices, with particular strength in type safety and API design.
 
 However, significant improvements are needed in code quality, testing, and error handling to ensure production readiness. The recommended action plan provides a clear path forward to address these issues while continuing feature development.
 

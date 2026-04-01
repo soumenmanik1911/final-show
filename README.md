@@ -1,6 +1,6 @@
-# Meet-Me
+# Visora
 
-Meet-Me is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates with VAPI AI for conversational AI agents and Stream Video for real-time video conferencing.
+Visora is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates with VAPI AI for conversational AI agents and Stream Video for real-time video conferencing.
 
 ## Features
 

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users, Video } from "lucide-react";
 import { GeneratedAvatar } from "@/components/genrated-avatar";
-import { MeetMeLogo } from "@/components/logo";
+import { VisoraLogo } from "@/components/logo";
 import Link from "next/link";
 
 interface Props {
@@ -88,9 +88,9 @@ export const JoinMeetingView = ({ meetingId }: Props) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <MeetMeLogo className="w-8 h-8" />
+              <VisoraLogo className="w-8 h-8" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">MeetMe</h1>
+                <h1 className="text-xl font-bold text-gray-900">Visora</h1>
                 <p className="text-sm text-gray-600">Professional Meeting Platform</p>
               </div>
             </div>

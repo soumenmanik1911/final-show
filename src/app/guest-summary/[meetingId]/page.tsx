@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, Play } from 'lucide-react';
-import { MeetMeLogo } from '@/components/logo';
+import { VisoraLogo } from '@/components/logo';
 import Link from 'next/link';
 import { GuestHowToUse } from '@/components/guest-how-to-use';
 
@@ -81,10 +81,10 @@ export default function GuestSummaryPage({ params }: PageProps) {
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <MeetMeLogo className="w-10 h-10" />
+            <VisoraLogo className="w-10 h-10" />
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                MeetMe
+                Visora
               </h1>
               <p className="text-sm text-muted-foreground">AI-Powered Meeting Insights</p>
             </div>

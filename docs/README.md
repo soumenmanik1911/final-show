@@ -1,8 +1,8 @@
-# Meet-Me Documentation
+# Visora Documentation
 
 ## Project Overview
 
-Meet-Me is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates with VAPI AI for conversational AI agents and Stream Video for real-time video conferencing, allowing users to host meetings with intelligent assistants that can participate in conversations, take notes, and provide summaries.
+Visora is a Next.js-based web application that enables users to create and manage AI-powered agents for video meetings. The platform integrates with VAPI AI for conversational AI agents and Stream Video for real-time video conferencing, allowing users to host meetings with intelligent assistants that can participate in conversations, take notes, and provide summaries.
 
 ### Key Features
 
@@ -63,7 +63,7 @@ src/
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd meet-me
+cd visora
 ```
 
 2. Install dependencies:

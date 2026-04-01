@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-const MeetMeLogo = () => (
+const VisoraLogo = () => (
   <svg width="56" height="56" viewBox="0 0 64 64">
     <circle cx="32" cy="32" r="30" fill="url(#grad)" />
     <text x="32" y="40" textAnchor="middle" fontSize="28" fill="#00FFC6" fontWeight="bold">🤝</text>
@@ -30,10 +30,10 @@ export default function HowToUsePage() {
         <div className="flex flex-col items-center justify-center pt-16 pb-8 px-4">
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8 flex justify-center">
-              <MeetMeLogo />
+              <VisoraLogo />
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x">
-              How to Use MeetMe
+              How to Use Visora
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed px-4">
               Your complete guide to creating agents, managing meetings, and maximizing productivity with AI-powered collaboration.
@@ -188,7 +188,7 @@ export default function HowToUsePage() {
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-yellow-400">🚀 Ready to Get Started?</h2>
             <div className="text-center">
               <p className="text-lg text-gray-300 mb-8">
-                Now that you know how to use MeetMe, start creating amazing AI-powered meetings!
+                Now that you know how to use Visora, start creating amazing AI-powered meetings!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/meetings">

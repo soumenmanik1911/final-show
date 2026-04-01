@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-export const MeetMeLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg width="32" height="32" viewBox="0 0 64 64" aria-label="Meet-Me" {...props}>
+export const VisoraLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="32" height="32" viewBox="0 0 64 64" aria-label="Visora" {...props}>
     <circle cx="32" cy="32" r="30" fill="url(#grad)" />
     <text x="32" y="40" textAnchor="middle" fontSize="28" fill="#00FFC6" fontWeight="bold">🤝</text>
     <defs>

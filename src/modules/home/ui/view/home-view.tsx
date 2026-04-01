@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 
-const MeetMeLogo = () => (
+const VisoraLogo = () => (
   <svg width="56" height="56" viewBox="0 0 64 64">
     <circle cx="32" cy="32" r="30" fill="url(#grad)" />
     <text x="32" y="40" textAnchor="middle" fontSize="28" fill="#00FFC6" fontWeight="bold">🤝</text>
@@ -67,12 +67,12 @@ export const HomeView = () => {
           <div className="text-center max-w-6xl mx-auto">
             {/* Logo */}
             <div className="mb-12 flex justify-center animate-bounce">
-              <MeetMeLogo />
+              <VisoraLogo />
             </div>
 
             {/* Headline */}
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x">
-              MeetMe
+              Visora
             </h1>
 
             {/* Subheadline */}
@@ -121,7 +121,7 @@ export const HomeView = () => {
                     <h3 className="text-2xl font-bold mb-3 text-green-400">Seamless Integration </h3>
                     <p className="text-base text-gray-300 leading-relaxed">
                       Connect effortlessly with your favorite tools and platforms. From calendar sync to video conferencing,
-                      MeetMe integrates everywhere you work for a unified and productive experience.
+                      Visora integrates everywhere you work for a unified and productive experience.
                     </p>
                   </div>
                   <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
@@ -150,7 +150,7 @@ export const HomeView = () => {
               <div className="text-center pt-8">
                 <Link href="/how-to-use">
                   <button className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                    📖 Learn How to Use MeetMe
+                    📖 Learn How to Use Visora
                   </button>
                 </Link>
               </div>

@@ -85,7 +85,7 @@ export default function FeedbackPage() {
             Share Your Feedback
           </h1>
           <p className="text-lg text-gray-300">
-            Help us improve MeetMe by sharing your thoughts and experiences.
+            Help us improve Visora by sharing your thoughts and experiences.
           </p>
         </div>
 

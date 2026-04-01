@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, FileText, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MeetMeLogo } from '@/components/logo';
+import { VisoraLogo } from '@/components/logo';
 import { db } from '@/db';
 import { meetings } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -37,10 +37,10 @@ export default async function SummaryPage({ params }: PageProps) {
         {/* Header with Logo and Navigation */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <MeetMeLogo className="w-10 h-10" />
+            <VisoraLogo className="w-10 h-10" />
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                MeetMe
+                Visora
               </h1>
               <p className="text-sm text-muted-foreground">AI-Powered Meeting Insights</p>
             </div>

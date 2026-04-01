@@ -28,7 +28,7 @@ import {
 
 import Link from "next/link";
 import { BotIcon, StarIcon, VideoIcon,FileJson2 } from "lucide-react";
-import { MeetMeLogo } from "@/components/logo";
+import { VisoraLogo } from "@/components/logo";
 import { DashboardUserButton } from "./dashboard-user-button";
 
   const firstSection = [
@@ -72,10 +72,10 @@ import { DashboardUserButton } from "./dashboard-user-button";
         <SidebarHeader className="bg-black border-b border-gray-800 p-4">
           <Link href="/" className="block">
             <div className="flex items-center gap-3 p-3 hover:bg-gray-900 rounded-xl transition-all duration-200 group cursor-pointer">
-              <MeetMeLogo width={40} height={40} className="group-hover:scale-105 transition-transform duration-200" />
+              <VisoraLogo width={40} height={40} className="group-hover:scale-105 transition-transform duration-200" />
               <div className="min-w-0">
                 <span className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors duration-200 block truncate">
-                  Meet-Me
+                  Visora
                 </span>
                 <span className="text-xs text-gray-400 block">AI Assistant</span>
               </div>

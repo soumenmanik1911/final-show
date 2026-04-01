@@ -116,8 +116,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 
-// Example Meet-Me Logo Component (SVG/emoji/image)
-const MeetMeLogo = () => (
+// Example Visora Logo Component (SVG/emoji/image)
+const VisoraLogo = () => (
   <svg width="56" height="56" viewBox="0 0 64 64">
     <circle cx="32" cy="32" r="30" fill="url(#grad)" />
     <text x="32" y="40" textAnchor="middle" fontSize="28" fill="#00FFC6" fontWeight="bold">🤝</text>
@@ -157,10 +157,10 @@ export const SignInView = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <Card className="w-full max-w-3xl flex flex-col md:flex-row rounded-xl overflow-hidden shadow-2xl border-none bg-zinc-900">
-        {/* Meet-Me Section: Always visible & responsive */}
+        {/* Visora Section: Always visible & responsive */}
         <div className="flex flex-col items-center justify-center md:basis-1/2 bg-gradient-to-br from-zinc-900 to-zinc-800 py-8 md:py-0 md:h-auto">
-          <MeetMeLogo />
-          <h2 className="mt-4 text-3xl font-bold text-white md:mb-0">Meet-Me</h2>
+          <VisoraLogo />
+          <h2 className="mt-4 text-3xl font-bold text-white md:mb-0">Visora</h2>
           <span className="mt-2 text-teal-300 text-sm font-medium hidden md:block">Your AI Connect</span>
         </div>
         {/* Sign-in Form Section */}
