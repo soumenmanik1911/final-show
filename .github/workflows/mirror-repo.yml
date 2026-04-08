@@ -1,0 +1,67 @@
+# Mirror Repository Workflow
+#
+# This workflow automatically mirrors (copies) this entire repository — including all
+# branches, tags, and full commit history — to another target repository without
+# making any changes to the code.
+#
+# ── SETUP INSTRUCTIONS ──────────────────────────────────────────────────────────
+#
+# 1. Create a new EMPTY repository on GitHub (do NOT initialise it with a README).
+#    e.g. https://github.com/<your-username>/<new-repo-name>
+#
+# 2. Generate a Personal Access Token (PAT) with the `repo` scope:
+#    GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+#
+# 3. Add the token as a repository secret in THIS repository:
+#    GitHub → Settings → Secrets and variables → Actions → New repository secret
+#      Name  : MIRROR_TOKEN
+#      Value : <your PAT>
+#
+# 4. Set the MIRROR_REPO variable below to the URL of your new empty repository:
+#    https://github.com/<your-username>/<new-repo-name>.git
+#
+# ────────────────────────────────────────────────────────────────────────────────
+
+name: Mirror Repository
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  workflow_dispatch: # allow manual trigger from the Actions tab
+
+env:
+  # ⚠️  Replace the URL below with your new (empty) target repository
+  MIRROR_REPO: https://github.com/YOUR_USERNAME/YOUR_NEW_REPO.git
+
+jobs:
+  mirror:
+    name: Mirror to target repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Validate configuration
+        run: |
+          if [[ "$MIRROR_REPO" == *"YOUR_USERNAME"* || "$MIRROR_REPO" == *"YOUR_NEW_REPO"* ]]; then
+            echo "❌  MIRROR_REPO has not been configured."
+            echo "    Please edit the MIRROR_REPO env variable in this workflow file"
+            echo "    and replace the placeholder with your actual target repository URL."
+            exit 1
+          fi
+
+      - name: Checkout full history (bare clone)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # fetch all branches and tags
+
+      - name: Push mirror to target repository
+        run: |
+          # Inject the token directly into the remote URL — no credentials are written to disk
+          AUTHED_REPO="${MIRROR_REPO/https:\/\//https://x-access-token:${{ secrets.MIRROR_TOKEN }}@}"
+
+          # Use --mirror so every ref (branches + tags + notes) is replicated exactly
+          git push --mirror "$AUTHED_REPO"
